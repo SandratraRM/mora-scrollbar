@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Demo of Mora Scrollbars</title>
+    <link rel="stylesheet" href="../css/MoraScrollbar.css">
+    <link rel="stylesheet" href="./demo.css">
+    <style></style>
+</head>
+
+<body>
+
+    <div id="loader">
+        <div id="progress">
+            <h1>Mora Scrollbars</h1>
+        </div>
+    </div>
+    <script>
+
+        var loader = document.getElementById("loader");
+        loader.classList.add("active");
+        window.addEventListener("load", function () {
+            loader.classList.remove("active");
+            scrollSpy();
+            document.getElementById("main").getElementsByClassName("msc-content")[0].addEventListener("scroll", scrollSpy);
+            document.getElementById("menu").addEventListener("click", toggleSidebar);
+            linksOnclickCallback(toggleSidebar);
+        });
+        function toggleSidebar() {
+            var sidebar = document.getElementById("sidebar");
+            sidebar.classList.toggle("toggled");
+        }
+        function scrollSpy() {
+            var a = document.getElementsByClassName("side_links");
+            for (var index = 0; index < a.length; index++) {
+                var element = a[index];
+                var id = element.href.split("#")[1];
+                var target = document.getElementById(id);
+                var container = document.getElementById("main").getElementsByClassName("msc-content")[0];
+                if (target != null && container.scrollTop >= target.offsetTop && container.scrollTop < target.offsetTop + target.offsetHeight) {
+                    element.scrollIntoView();
+                    element.parentElement.scrollTop -= 2;
+                    element.classList.add("active");
+
+                } else {
+                    element.classList.remove("active");
+                }
+            }
+        }
+        function linksOnclickCallback(callback) {
+            var links = document.getElementsByClassName("side_links");
+            for (var index = 0; index < links.length; index++) {
+                var element = links[index];
+                element.addEventListener("click", callback);
+            }
+        }
+
+    </script>
+    <div id="sidebar">
+        <div class="msc-wrapper">
+            <div class="msc-content">
+                <a class="side_links" href="#welcome">Welcome</a>
+                <a class="side_links" href="#intro">Introduction</a>
+                <a class="side_links" href="#start">Getting started</a>
+                <a class="side_links" href="#how">How it works?</a>
+                <a class="side_links" href="#defaults">Default styles</a>
+                <a class="side_links" href="#custom">Custom styling</a>
+                <a class="side_links" href="#classes">List of classes</a>
+                <a class="side_links" href="#about">About me</a>
+                <a class="side_links" href="#see">See also</a>
+            </div>
+        </div>
+    </div>
+    <button id="menu">
+        Menu
+    </button>
+    <div id="main" class="msc-wrapper">
+        <div class="msc-content">
+            <header id="welcome">
+                <h1 id="welcome_title">
+                    Welcome
+                    in the
+                    Mora Scrollbars
+                    guide!
+                </h1>
+
+
+            </header>
+            <section id="intro">
+                <h1>
+                    Introduction
+                </h1>
+                <p>
+                    One problem any web designer will face up one day will be setting <span class="css-property">overflow</span>
+                    to <span class="css-value">auto</span> and then finding out that the default scrollbar is just to
+                    ugly for the design.<br>
+                    Most of the time, designers choose to sacrifice their creativity to stick to a <i>"scrollbar-friendly"</i>
+                    design, just because there isn't a decent, cross-browser, way to style that damn scrollbar.
+                </p>
+                <p>
+                    I know that there are already many scrollbar libraries out there but just because CocaCola exists
+                    does'nt mean Pepsi can't!<br>
+                </p>
+                <p>
+                    <b>
+                        What does mora scrollbars have more than others?
+                    </b>
+                </p>
+                <ul>
+                    <li>-Support for arrow buttons.</li>
+                    <li>-Prev/Next page smooth scrolling when the track is clicked.</li>
+                    <li>-Ability to fix min height to the handle.</li>
+                    <li>-Will display the default scrollbar on noscript.</li>
+                    <li>-Works great on devices with pen/touch support.</li>
+                    <li>-Disabled on devices with no scrollbars.</li>
+                    <li>-Works without Jquery.</li>
+                </ul>
+                <p><b>Other scrollbar libraries will possibly:</b></p>
+                <ul>
+                    <li>-Not have the arrow buttons included.</li>
+                    <li>-Not allow you to scroll with an other way than the scrollbar.</li>
+                    <li>-Not allow you to set a min height to the handle.</li>
+                    <li>-Not work on touchscreen desktops that still have ugly scrollbars.</li>
+                    <li>-Hard to find when hidden. (Like the facebook ones...well, you can optimize these on the css
+                        but I've set a better default behavior for you)</li>
+                    <li>-Kill the element functionality if the Javascript is disabled. (You won't be able to scroll
+                        that DIV anymore)</li>
+                    <li>-Mess with the event listeners. (You gonna add a window.onmousemove...and then: damn, why it
+                        is not working after i scrolled?)</li>
+                    <li>-Require Jquery. (This could be a problem if for some reasons, you can't use Jquery)</li>
+                    <li>-Won't work well if you are applying some crazy transformation effect (rotate or skew) to the
+                        scrollbar or its parent. (But mine too so this is your fault, a scrollbar must be either
+                        horizontal
+                        or vertical) (Workaround: you can rotate your whole monitor)</li>
+                </ul>
+                <p>
+
+                    <q><i>Because a good developper must assume that the next developper may be an absolute beginner
+                            and
+                            the end-user could be as smart as a stone ;)</i></q>
+                </p>
+                <p>
+                    Those are the <i>"reasons"</i> why i made this simple yet, but powerfull Javascript plugin that
+                    talks about scrollbars.
+
+                </p>
+                <p>
+                    <b>What does Mora mean?</b><br><br> This is the Malagasy word for easy...or also cheap, but for
+                    now,
+                    it's EASY, ok?<br> Yeah, i'm living in Madagascar and I like to
+                    move it ... with my Scrollbar!
+                </p>
+                <p><i>I just hope you will like it, because it is not for me, but for You. (Of course, only if you
+                        need a good design).</i></p>
+            </section>
+            <section id="start">
+                <h1>
+                    Getting started
+                </h1>
+                <p>
+                    Enough talk, let's start using it!
+                </p>
+                <p>
+                    So like any library, you need to <a href="#download">download</a> it.
+                    (Currently, there is no CDN version)<br>
+                </p>
+                <p>
+                    When you got all the files, add the MoraScrollbar.css to your HTML <span class="html">head</span>
+                    before any custom scrollbar styling css:<br>
+                    <br>
+                    <span class="html">&lt;head&gt;</span> <br>
+                    &nbsp; &nbsp; &nbsp; &nbsp;<span class="html">&lt;link rel=<span class="attr">"stylesheet"</span>
+                        href=<span class="attr">"/path/to/MoraScrollbar.css"</span>&gt;</span><br>
+                    &nbsp; &nbsp; &nbsp; &nbsp;<span class="html">&lt;link rel=<span class="attr">"stylesheet"</span>
+                        href=<span class="attr">"/path/to/theCssWhereYouWantToCustomizeTheScrollbars.css"</span>&gt;</span><br>
+                    <span class="html">&lt;/head&gt;</span> <br>
+
+                </p>
+                <p>
+                    Then you need to include the MoraScrollbar.js in your HTML file, i don't really know where,
+                    depending on your habitudes.<br>
+                    We just need to find
+                    <span class="html">&lt;script src=<span class="attr">"/path/to/MoraScrollbar.js"</span>&gt;&lt;/script&gt;</span>
+                    in your html.
+                </p>
+                <p>
+                    Ok, it is working now, but we don't have any element that wants to have a mora scrollbar yet...<br>
+                    For that, we need two elements, usually two <span class="html">div</span>'s...Of course, i could
+                    have done it with one element but we want the default scrollbar to display if the JavaScript is
+                    blocked so we need two elements (Good compatibility means extra-steps...and as a bonus, the
+                    JavaScript engine has job in less!).<br>
+                </p>
+                <p>
+                    Give the first element the class <span class="attr">"msc-wrapper"</span>. Then inside the first
+                    element, create the second element and give it the class <span class="attr">"msc-content"</span>.
+                    Don't add anything else, expect comments, inside the wrapper.<br><br>
+                    <span class="html">
+                        &lt;div class=<span class="attr">"msc-wrapper"</span>&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class=<span class="attr">"msc-content"</span>&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text">Your overflowing content!
+                            Here you can put anything</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>
+                        &lt;/div&gt;<br>
+                    </span>
+                </p>
+                <p>
+                    Now, because the wrapper default position is set to absolute, you must set its width and height
+                    with css. (Think about giving it an id)<br>
+                    <br> And that's all you need to do to activate the scrollbar!
+                </p>
+
+                <p><b>Tip :</b>Check the Tutorials/NormalScrollbar.html file for the minimal example code. The file will
+                    output this:
+
+                </p>
+                <p>
+                    <iframe src="./Tutorials/NormalScrollbar.html"></iframe>
+                </p>
+
+            </section>
+            <section id="how">
+                <h1>
+                    How it works?
+                </h1>
+                <p>
+                    Well, that was pretty easy but you may want to know how it is working right?
+                </p>
+                <p>
+                    So first of all, there is a Js class named <b>Mora_Scrollbar</b> inside the MoraScrollbar.js file
+                    that does all the magic. <br>
+                    It is instanciated in the <b>MoraScrollbar</b> variable when the window has loaded. <br>
+                    Then, the MoraScrollbar.refresh() method is called.<br><br> The refresh method:
+                </p>
+                <ul>
+                    <li>
+                        -Checks if the browser has scrollbars and then hides them.
+                    </li>
+                    <li>
+                        -Checks for elements with the class <span class="attr">"msc-wrapper"</span> that does'nt have
+                        the scrollbars yet.
+                    </li>
+                    <li>
+                        -Adding the scrollbars to them: the scrollbar is a just div with the class <span class="attr">"msc-scrollbar"</span>.
+                        It contains the track element with the class <span class="attr">"msc-track"</span> which in
+                        turns contains the handle button with the class <span class="attr">"msc-handle"</span>.The
+                        scrollbar element also contains 2 button elements with respectively the classes <span class="attr">"msc-btn-up"</span>
+                        for the up button and <span class="attr">"msc-btn-down"</span> for the down button.<br>
+                    </li>
+                </ul>
+                <p>
+                    <b>Tip :</b>Just inspect the page and look for the div with msc-scrollbar class.
+                </p>
+                <br>
+                <p>
+                    <b>Note :</b>The scrollbars are automatically refreshed when the window is resized or when an
+                    element is scrolled but you need to manually call the <span class="attr">MoraScrollbar.refresh()</span>
+                    method when:
+                </p>
+                <ul>
+                    <li>
+                        -You edit dynamically the content of one of the <span class="attr">msc-content</span>'s
+                        elements.
+                    </li>
+                    <li>
+                        -Adding or removing elements with the <span class="attr">msc-wrapper</span> class.
+                    </li>
+                    <li>
+                        -You reach any other situation where the scrollbars have an unexpected behavior.
+                    </li>
+                </ul>
+            </section>
+            <section id="defaults">
+                <h1>Default styles</h1>
+                <p>
+                    The <b>MoraScrollbar.css</b> file contains the default styling of all of the <a href="#classes">mora
+                        scrollbar css classes</a>.
+                </p>
+                <p>
+                    There are 3 default scrollbars styles ready for use.
+                </p>
+                <p><b>The "default" scrollbar:</b> It looks like the facebook ones.</p>
+                <p>
+                    <iframe src="./Tutorials/NormalScrollbar.html"></iframe>
+                </p>
+                <p><b>The arrowed scrollbar:</b> Add the class <span class="attr">"with-arrows"</span> to the
+                    msc-wrapper.<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="html">&lt;div class=<span class="attr">"msc-wrapper
+                            with-arrows"</span>&gt;</span>
+                </p>
+
+                <p>
+                    <iframe src="./Tutorials/ArrowedScrollbar.html"></iframe>
+                </p>
+                <p>
+                    <b>The fading scrollbar: </b>Add the class <span class="attr">"with-fading"</span> to the
+                    msc-wrapper. <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="html">&lt;div class=<span class="attr">"msc-wrapper
+                            with-fading"</span>&gt;</span>
+                </p>
+                <p>
+                    <iframe src="./Tutorials/FadingScrollbar.html"></iframe>
+                </p>
+                <p>
+                    <b>Tip :</b> You can also combine the <span class="attr">"with-arrows"</span> and <span class="attr">"with-fading"</span>
+                    to get a fading arrowed scrollbar.
+                </p>
+            </section>
+            <section id="custom">
+                <h1>Custom styling</h1>
+                <p>
+                    You may directly like the "default" ones but you may also want to make your owns. So this section
+                    will guide you on the basis of styling the scrollbars.
+                </p>
+                <p>
+                    First of all, the key is knowing css, all of these scrollbars are styled by css. The job of the Js
+                    is just adding the elements to the html but for the display, it's all for css.<br>
+                    We are going to start from the normal scrollbar and trying to change the colors and add a border.
+                    <br>
+                    Follow the "NormalScrollbar" steps, add an id to the wrapper, for example <span class="attr">MyScrollbar</span>.
+                    Then in your css, add: <br>
+                </p>
+
+                <div class="code">
+                    <span class="html">#MyScrollbar .msc-content</span>{
+                    <ul>
+                        <li>
+                            <span class="css-property">padding</span>: <span class="css-value">20px;</span>
+                        </li>
+                    </ul>
+                    } <br>
+                    <span class="html">#MyScrollbar .msc-handle</span>{
+                    <ul>
+                        <li>
+                            <span class="css-property">background</span>: <span class="css-value">rgb(26, 173, 184);</span>
+                        </li>
+                    </ul>
+                    } <br>
+                    <span class="html">#MyScrollbar .msc-track</span>{
+                    <ul>
+                        <li><span class="css-property">background</span>: <span class="css-value">rgb(222, 242, 255);</span></li>
+                        <li><span class="css-property">border</span>: <span class="css-value">1px solid transparent;</span></li>
+                    </ul>
+                    } <br>
+                    <span class="html">#MyScrollbar .msc-scrollbar</span>{
+                    <ul>
+                        <li><span class="css-property">border</span>: <span class="css-value">2px solid rgb(16, 136,
+                                145);</span></li>
+                        <li><span class="css-property">width</span>: <span class="css-value">14px;</span></li>
+                        <li><span class="css-property">border-radius</span>:<span class="css-value">7px;</span></li>
+
+                    </ul>
+                    }
+                </div>
+                <p>
+                    It will look like this:
+                </p>
+                <p><iframe src="./Tutorials/CustomStyle.html"></iframe></p>
+                <p>
+                    As you can see, you just have to style the classes.  
+
+                </p>
+                <p>Below you will see all the classes lists and their description.</p>
+            </section>
+            <section id="classes">
+                <h1>List of classes</h1>
+                <p>
+                    We have maybe seen all of them above but at different places so here we will gather them.
+                </p>
+                <p><b>The elements:</b></p>
+                <ul>
+                    <li>
+                        <span class="attr">msc-wrapper</span> : the container of the overflowing content and the scrollbar. Think of it like a screen. It has overflow set to hidden so if you want to listen for the scroll in Js, add the listener to the msc-content. Its position is by default absolute (like all of the other classes), you can change it to relative or fixed depending on your needs. Don't add padding to it. You need to style it to set the positions and dimensions.
+                    </li>
+                    <br>
+                    <li>
+                        <span class="attr">msc-content</span> : the overflowing content. You can add anything inside of it. It has overflow-y to auto. Don't modify the width, height, margin, position.
+                    </li>
+                    <br>
+                    <li>
+                        <span class="attr">msc-scrollbar</span> : the div generated by the MoraScrollbar.js. It is the container of the buttons and the track.
+                    </li>
+                    <br>
+                    <li>
+                        <span class="attr">msc-track</span> : the track is the part of the scrollbar without the buttons. It contains the handle. 
+                    </li>
+                    <br>
+                    <li>
+                        <span class="attr">msc-handle</span> : this is he handle. You can set its min-height by setting the min-height in css. 
+                    </li>
+                    <br>
+                    <li>
+                        <span class="attr">msc-btn-up , msc-btn-down</span> : The buttons, they are always there but just hidden in css with display none by default. So if you wan't to make a custom arrowed scrollbar, i advice you to start from the "NormalScrollbar" rather than with "with-arrows" one because you may have an headache trying to change the default values. You just need to arrange the space inside msc-scrollbar for the buttons and the track. The arrow icons are build with css pseudo element ::before and borders. You may need to use pseudo elements to use images or add text.
+                    </li>
+                </ul>
+                <p><b>The events</b>: </p>
+                <ul>
+                    <li>
+                        <span class="attr">using-scroll</span> : added to the msc-wrapper when the scrollbar is used. (You may use it with :hover)
+                    </li>
+                    <br>
+                    <li>
+                        <span class="attr">disabled</span> : added to the buttons when it can't be pushed because the scroll is in one of the edges. 
+                    </li>
+                </ul>
+            </section>
+            <section id="about">
+                <h1>About me</h1>
+                <p>
+                    So maybe you already know who I am depending of where did you come to that page. Or maybe not, so in short : My name is RAMBELOSON Mendrika Sandratra. I'm a 19 years Malagasy Informatic student. I'm currently preparing my License.
+                </p>
+                <ul>
+                        <li>You can read more on my  <a href="https://mendrikars.ml">website</a> if you speak french.</li>
+                        <li>You can add me on <a href="https://www.facebook.com/sandratra.rambeloson">Facebook</a> too. </li>
+                        <li>Or check my <a href="https://www.github.com/SandratraRM">Github</a> page.</li>
+                </ul>
+            </section>
+            <section id="see">
+                <h1>See also</h1>
+                <p>
+                    The php framework mora on <a href="https://www.github.com/mora-mora">Github</a>: Use 'composer create-project mora/mora project name' to use it.
+                </p>
+            </section>
+        </div>
+    </div>
+    <script src="../js/MoraScrollbar.js"></script>
+
+</body>
+
+</html>
