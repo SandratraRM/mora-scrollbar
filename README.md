@@ -59,7 +59,7 @@ Then give them respectively the class `msc-wrapper` and `msc-content`.
 
 Default styles are already set in the `./css/MoraScrollbar.css` stylesheet, but you can change them as you need.
 
->Just look at the `demo.html` file to see how to customize your scrolbars.
+>Just look at the `demo/index.html#custom` file to see how to customize your scrolbars.
 
 ### Refreshing
 
