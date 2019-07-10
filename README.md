@@ -1,5 +1,7 @@
 # Mora Scrollbars
 
+[![HitCount](http://hits.dwyl.io/sandratrarm/mora-scrollbar.svg)](http://hits.dwyl.io/sandratrarm/mora-scrollbar)
+
  >A zero dependency Javascript scrollbar.
 
  *See also the `demo/index.html` file in your browser*
