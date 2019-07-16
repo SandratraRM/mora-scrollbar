@@ -75,7 +75,7 @@ To fix this, when you reach one of these situation, just call the `MoraScrollbar
 
 ## Future features
 
-- Support for vertical scrollbars
+- Support for horizontal scrollbars
 - Theme packs
 
 ## See also
