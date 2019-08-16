@@ -144,7 +144,7 @@ content,id?     */
         document.body.parentElement.style.touchAction = "none";
         this.stopScroll();
         var _Mora_ScrollBar = this;
-        _Mora_ScrollBar.initial_cursor = event.pageY || event.clientY;
+        _Mora_ScrollBar.initial_cursor =  event.clientY;
         _Mora_ScrollBar.current_element = element;
         _Mora_ScrollBar.initial_top = element.offsetTop;
         element.parentElement.parentElement.parentElement.classList.add("using-scroll");
@@ -197,7 +197,7 @@ content,id?     */
     };
     Mora_ScrollBar.prototype.pointerScroll = function (event) {
         var _Mora_ScrollBar = this;
-        var pointer_Y = event.pageY || event.clientY;
+        var pointer_Y = event.clientY;
         var element = this.current_element;
         var percent = (this.initial_top / (element.parentElement.offsetHeight - element.offsetHeight)) + ((pointer_Y - _Mora_ScrollBar.initial_cursor) / (element.parentElement.offsetHeight - element.offsetHeight));
         var cible = element.parentElement.parentElement.previousElementSibling;
@@ -205,7 +205,7 @@ content,id?     */
     };
     Mora_ScrollBar.prototype.jumpTo = function (event, element) {
         if (event.target == element) {
-            var Y = event.pageY;
+            var Y = event.clientY;
             var cible = element.parentElement.parentElement.getElementsByClassName("msc-content")[0];
             var handle = element.lastChild;
             var by = void 0;
