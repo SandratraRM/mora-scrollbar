@@ -12,9 +12,7 @@ var Mora_ScrollBar = /** @class */ (function () {
         this.default_pointercancel = window.onpointercancel;
         window.addEventListener("resize", function (event) { _this.refresh(); });
     }
-    /**
-     * createElement
-content,id?     */
+    
     Mora_ScrollBar.prototype.createElement = function () {
         var wrapper = document.createElement("DIV"), content = document.createElement("DIV");
         wrapper.classList.add("msc-wrapper");
