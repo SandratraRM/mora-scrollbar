@@ -1,10 +1,10 @@
 # Mora Scrollbars
 
-[![HitCount](http://hits.dwyl.io/sandratrarm/mora-scrollbar.svg)](http://hits.dwyl.io/sandratrarm/mora-scrollbar)
+## Update 2024
 
- >A zero dependency Javascript scrollbar.
+I'm currently doing a major refactor on this project by adding CDN and NPM package support as well as some optimization.
 
- *See also the `demo/index.html` file in your browser*
+It should be done soon. The only big thing remaing is updating or rewriting the doc and demo which may be outdated or broken.
 
 ## Author
 
@@ -12,7 +12,7 @@
 
 - [Facebook](https://www.facebook.com/sandratra.rambeloson)
 - [Github](https://www.github.com/SandratraRM)
-- [Website](https://mendrikars.ml)
+
 
 ## Features
 

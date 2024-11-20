@@ -1,6 +1,6 @@
 {
   "name": "mora-scrollbars",
-  "version": "1.0.3-unstable",
+  "version": "1.0.4-unstable",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",
