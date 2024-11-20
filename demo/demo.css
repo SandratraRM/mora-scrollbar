@@ -188,12 +188,12 @@ h1 {
   background: #659ea8;
 }
 
-#main > .msc-scrollbar:hover, #main.using-scroll > .msc-scrollbar {
+#main > .msc-scrollbar:hover, #main.msc-using-scroll > .msc-scrollbar {
   width: 20px;
   opacity: 1;
 }
 
-#main.using-scroll {
+#main.msc-using-scroll {
   cursor: pointer;
 }
 

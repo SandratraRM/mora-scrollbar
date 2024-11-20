@@ -6,9 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Demo of Mora Scrollbars</title>
-    <link rel="stylesheet" href="../css/MoraScrollbar.css">
     <link rel="stylesheet" href="./demo.css">
     <style></style>
+    <script src="../dist/index.js"></script>
+    <script>
+        window.addEventListener("load", () => {
+          window.mscManager = MoraScrollBars.startManager()
+        })
+    </script>
 </head>
 
 <body>
@@ -285,26 +290,26 @@
                 <p>
                     <iframe src="./Tutorials/NormalScrollbar.html"></iframe>
                 </p>
-                <p><b>The arrowed scrollbar:</b> Add the class <span class="attr">"with-arrows"</span> to the
+                <p><b>The arrowed scrollbar:</b> Add the class <span class="attr">"msc-with-arrows"</span> to the
                     msc-wrapper.<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;<span class="html">&lt;div class=<span class="attr">"msc-wrapper
-                            with-arrows"</span>&gt;</span>
+                            msc-with-arrows"</span>&gt;</span>
                 </p>
 
                 <p>
                     <iframe src="./Tutorials/ArrowedScrollbar.html"></iframe>
                 </p>
                 <p>
-                    <b>The fading scrollbar: </b>Add the class <span class="attr">"with-fading"</span> to the
+                    <b>The fading scrollbar: </b>Add the class <span class="attr">"msc-with-fading"</span> to the
                     msc-wrapper. <br>
                     &nbsp;&nbsp;&nbsp;&nbsp;<span class="html">&lt;div class=<span class="attr">"msc-wrapper
-                            with-fading"</span>&gt;</span>
+                            msc-with-fading"</span>&gt;</span>
                 </p>
                 <p>
                     <iframe src="./Tutorials/FadingScrollbar.html"></iframe>
                 </p>
                 <p>
-                    <b>Tip :</b> You can also combine the <span class="attr">"with-arrows"</span> and <span class="attr">"with-fading"</span>
+                    <b>Tip :</b> You can also combine the <span class="attr">"msc-with-arrows"</span> and <span class="attr">"msc-with-fading"</span>
                     to get a fading arrowed scrollbar.
                 </p>
             </section>
@@ -392,13 +397,13 @@
                     </li>
                     <br>
                     <li>
-                        <span class="attr">msc-btn-up , msc-btn-down</span> : The buttons, they are always there but just hidden in css with display none by default. So if you want to make a custom arrowed scrollbar, i advice you to start from the "NormalScrollbar" rather than with "with-arrows" one because you may have an headache trying to change the default values. You just need to arrange the space inside msc-scrollbar for the buttons and the track. The arrow icons are build with css pseudo element ::before and borders. You may need to use pseudo elements to use images or add text.
+                        <span class="attr">msc-btn-up , msc-btn-down</span> : The buttons, they are always there but just hidden in css with display none by default. So if you want to make a custom arrowed scrollbar, i advice you to start from the "NormalScrollbar" rather than with "msc-with-arrows" one because you may have an headache trying to change the default values. You just need to arrange the space inside msc-scrollbar for the buttons and the track. The arrow icons are build with css pseudo element ::before and borders. You may need to use pseudo elements to use images or add text.
                     </li>
                 </ul>
                 <p><b>The events</b>: </p>
                 <ul>
                     <li>
-                        <span class="attr">using-scroll</span> : added to the msc-wrapper when the scrollbar is used. (You may use it with :hover)
+                        <span class="attr">msc-using-scroll</span> : added to the msc-wrapper when the scrollbar is used. (You may use it with :hover)
                     </li>
                     <br>
                     <li>
@@ -425,8 +430,7 @@
             </section>
         </div>
     </div>
-    <script src="../js/MoraScrollbar.js"></script>
-
+    
 </body>
 
 </html>

@@ -1,9 +1,11 @@
-class Mora_ScrollBar{
+import { Manager } from './container';
+import './index.scss'
+export class MoraScrollBarService{
 
     private wrappers: HTMLCollectionOf<Element>;
     private initial_cursor:any = 0;
     private current_element: any;
-    private scrollers: any;
+    private handles: any;
     private default_pointerup:Function | null;
     private default_pointermove: Function | null;
     private default_pointercancel: Function | null;
@@ -13,25 +15,27 @@ class Mora_ScrollBar{
         
         this.current_element = null;
         this.wrappers = document.getElementsByClassName("msc-wrapper");
-        this.scrollers = document.getElementsByClassName("msc-handle");
+        this.handles = document.getElementsByClassName("msc-handle");
         this.default_pointerup = window.onpointerup;
         this.default_pointermove = window.onpointermove;
         this.default_pointercancel = window.onpointercancel;
         window.addEventListener("resize",(event)=>{this.refresh();});
     }
 
-    public createElement() {
-        const wrapper = document.createElement("DIV") ,content = document.createElement("DIV");
-        wrapper.classList.add("msc-wrapper");
-        content.classList.add("msc-content");
-        wrapper.appendChild(content);
-        return wrapper;
-    }
+    // public createElement() {
+    //     const wrapper = document.createElement("DIV") ,content = document.createElement("DIV");
+    //     wrapper.classList.add("msc-wrapper");
+    //     content.classList.add("msc-content");
+    //     wrapper.appendChild(content);
+    //     return wrapper;
+    // }
 
     private _render(){
-        for (var s = 0; s < this.scrollers.length; s++) {
-            const handle = this.scrollers[s];
-            const content = handle.parentElement.parentElement.previousElementSibling;
+        for (var s = 0; s < this.handles.length; s++) {
+            const handle = this.handles[s];
+            const track = handle.parentElement;
+            const scrollbarElement = track.parentElement;
+            const content = scrollbarElement.previousElementSibling;
             const wrapper = content.parentElement;
             const arrow_down = wrapper.lastChild.lastChild;
             const arrow_up = wrapper.lastChild.firstChild;
@@ -40,14 +44,14 @@ class Mora_ScrollBar{
             if (scroll_width > 0) {
                 
                 if (content.offsetHeight == content.scrollHeight) {
-                    handle.parentElement.parentElement.style.display = "none";
+                    scrollbarElement.style.display = "none";
                 }
                 else if (content.offsetHeight < content.scrollHeight) {
-                    handle.parentElement.parentElement.style.display = "block";
+                    scrollbarElement.style.display = "block";
                 }
-                const initial_height = handle.parentElement.offsetHeight * this._calculateHeight({element: content}) / 100;
+                const initial_height = track.offsetHeight * this._calculateHeight({element: content}) / 100;
                 handle.style.height = initial_height + "px";
-                const top = ((content.scrollTop / (content.scrollHeight - content.offsetHeight)) * (handle.parentElement.clientHeight - handle.offsetHeight));
+                const top = ((content.scrollTop / (content.scrollHeight - content.offsetHeight)) * (track.clientHeight - handle.offsetHeight));
                 handle.style.top = top+ "px";
                 
             
@@ -64,7 +68,7 @@ class Mora_ScrollBar{
             
             }
             else{
-                handle.parentElement.parentElement.style.display = "none";
+                scrollbarElement.style.display = "none";
             }
         }
     }
@@ -154,46 +158,46 @@ class Mora_ScrollBar{
     private startScroll(event:any,element:any){
         document.body.parentElement!.style.touchAction  = "none";
         this.stopScroll();
-        const _Mora_ScrollBar = this;
-        _Mora_ScrollBar.initial_cursor = event.clientY;
-        _Mora_ScrollBar.current_element = element;
-        _Mora_ScrollBar.initial_top = element.offsetTop;
-        element.parentElement.parentElement.parentElement.classList.add("using-scroll");
-        document.body.style.userSelect = document.body.style.webkitUserSelect = document.body.style.msUserSelect = "none";
+        const _MoraScrollBar = this;
+        _MoraScrollBar.initial_cursor = event.clientY;
+        _MoraScrollBar.current_element = element;
+        _MoraScrollBar.initial_top = element.offsetTop;
+        element.parentElement.parentElement.parentElement.classList.add("msc-using-scroll");
+        document.body.style.userSelect = document.body.style.webkitUserSelect = (document.body.style as any).msUserSelect = "none";
 
         this.default_pointermove = window.onpointermove;
         window.onpointermove = function (event: any){
-            _Mora_ScrollBar.pointerScroll(event);
-            if (_Mora_ScrollBar.default_pointermove != null) {
-               (_Mora_ScrollBar.default_pointermove.bind(this))(event);
+            _MoraScrollBar.pointerScroll(event);
+            if (_MoraScrollBar.default_pointermove != null) {
+               (_MoraScrollBar.default_pointermove.bind(this))(event);
             }
         }
 
         this.default_pointerup = window.onpointerup;
         window.onpointerup = function (event: any){
-            _Mora_ScrollBar.stopScroll();
-            if (_Mora_ScrollBar.default_pointerup != null) {
-                (_Mora_ScrollBar.default_pointerup.bind(this))(event);
+            _MoraScrollBar.stopScroll();
+            if (_MoraScrollBar.default_pointerup != null) {
+                (_MoraScrollBar.default_pointerup.bind(this))(event);
             }
         }
 
         this.default_pointercancel = window.onpointercancel;
         window.onpointercancel = function (event: any){
-            _Mora_ScrollBar.stopScroll();
-            if (_Mora_ScrollBar.default_pointercancel != null) {
-                (_Mora_ScrollBar.default_pointercancel.bind(this))(event);
+            _MoraScrollBar.stopScroll();
+            if (_MoraScrollBar.default_pointercancel != null) {
+                (_MoraScrollBar.default_pointercancel.bind(this))(event);
             }
         }
     }
 
     private stopScroll() {
         const _Mora_ScrollBar = this;
-        const using = document.getElementsByClassName("using-scroll")[0];
+        const using = document.getElementsByClassName("msc-using-scroll")[0];
         if (using != null) {
-            using.classList.remove("using-scroll");
+            using.classList.remove("msc-using-scroll");
         }
         document.body.parentElement!.style.touchAction  = "";
-        document.body.style.userSelect = document.body.style.webkitUserSelect = document.body.style.msUserSelect = "";
+        document.body.style.userSelect = document.body.style.webkitUserSelect = (document.body.style as any).msUserSelect = "";
         window.onpointermove = _Mora_ScrollBar.default_pointermove as any | null;
         window.onpointerup = _Mora_ScrollBar.default_pointerup as any | null;
         window.onpointercancel = _Mora_ScrollBar.default_pointercancel as any | null;
@@ -218,8 +222,8 @@ class Mora_ScrollBar{
         const pointer_Y = event.clientY;
         const element = this.current_element;
         const percent = (this.initial_top / (element.parentElement.offsetHeight - element.offsetHeight) ) + ((pointer_Y - _Mora_ScrollBar.initial_cursor) /( element.parentElement.offsetHeight - element.offsetHeight));
-        const cible = element.parentElement.parentElement.previousElementSibling;
-        cible.scrollTop = percent * (cible.scrollHeight - cible.offsetHeight);
+        const target = element.parentElement.parentElement.previousElementSibling;
+        target.scrollTop = percent * (target.scrollHeight - target.offsetHeight);
     }
     private jumpTo(event:any, element:any){
         if (event.target == element) {
@@ -236,6 +240,7 @@ class Mora_ScrollBar{
         }
     }
     
+    // handle scrollTo
     private nextPage(element:any,direction:any){
         const initial_top = element.scrollTop;
         const final_top = initial_top + (element.offsetHeight * direction);
@@ -254,8 +259,15 @@ class Mora_ScrollBar{
     }
 }
 
-var MoraScrollbar;
-window.addEventListener("load" ,()=>{
-    MoraScrollbar = new Mora_ScrollBar();
-    MoraScrollbar.refresh();
-});
+export const init = () => {
+    const  moraScrollbarService  = new MoraScrollBarService();
+    moraScrollbarService.refresh();
+    return moraScrollbarService;
+}
+
+export const startManager = () => {
+    // todo externalize
+    const manager = new Manager(true);
+    manager.refresh();
+    return manager;
+}

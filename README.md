@@ -55,7 +55,7 @@ Then give them respectively the class `msc-wrapper` and `msc-content`.
 </div>
 ```
 
-> Add `with-arrows` to the wrapper element to display the arrows.
+> Add `msc-with-arrows` to the wrapper element to display the arrows.
 
 ### Styling
 

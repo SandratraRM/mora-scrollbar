@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+      "target": "ES5",              // Ensure compatibility with older browsers
+      "module": "ESNext",           // To work with Webpack's ES module system
+      "moduleResolution": "node",   // Resolve modules as Node.js would
+      "outDir": "./dist",           // Output directory for compiled JS
+      "esModuleInterop": true,      // Allow default imports from CommonJS modules
+      "strict": true,               // Enable strict type-checking options
+      "skipLibCheck": true,         // Skip type-checking of declaration files
+      "declaration": true,          // Generate .d.ts files for TypeScript
+      "declarationDir": "./dist/types"  // Output directory for .d.ts files
+    },
+    "include": ["src/**/*"]
+}

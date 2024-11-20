@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>The normal Scrollbar</title>
-    <link rel="stylesheet" href="../../css/MoraScrollbar.css">
-    <script src="../../js/MoraScrollbar.js"></script>
+    <script src="../../dist/index.js"></script>
     <style>
         body{
             background: white;
@@ -20,6 +19,11 @@
             top:unset;
         }
     </style>
+    <script>
+       window.addEventListener("load", () => {
+          window.mscManager = MoraScrollBars.startManager()
+        })
+    </script>
 </head>
 <body>
     <h4>
