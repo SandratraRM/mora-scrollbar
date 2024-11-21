@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",
   "scripts": {
-    "build": "webpack --mode production; rm -r demo/dist; cp -r dist/ demo/dist",
+    "build": "webpack --mode production; rm -rf demo/dist; cp -fr dist/ demo/dist",
     "dev": "webpack serve --mode development"
   },
   "files": [
