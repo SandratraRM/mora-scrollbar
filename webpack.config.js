@@ -5,7 +5,7 @@ module.exports = {
   output: {
     filename: 'index.js',
     path: path.resolve(__dirname, 'dist'),
-    library: 'MoraScrollBars',
+    library: 'MoraScrollbar',
     libraryTarget: 'umd',
     globalObject: 'this',
   },

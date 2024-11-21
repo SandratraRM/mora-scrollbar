@@ -1,11 +1,11 @@
 {
-  "name": "mora-scrollbars",
-  "version": "1.0.5-unstable",
+  "name": "mora-scrollbar",
+  "version": "1.0.0-unstable",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",
   "scripts": {
-    "build": "webpack --mode production; cp -r dist/ demo/dist",
+    "build": "webpack --mode production; rm -r demo/dist; cp -r dist/ demo/dist",
     "dev": "webpack serve --mode development"
   },
   "files": [

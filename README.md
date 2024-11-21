@@ -1,4 +1,4 @@
-# Mora Scrollbars
+# Mora Scrollbar
 
 ## Update 2024
 
