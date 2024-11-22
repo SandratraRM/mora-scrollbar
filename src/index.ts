@@ -183,8 +183,8 @@ class Scrollbar {
     public onDestroy(){
         this.onInitListeners.forEach(listener => {
             listener.target.removeEventListener(listener.event, listener.callback);
-            console.log("Cleaned listener");
-        })
+        });
+        this.targetWrapper.removeChild(this.scrollbarElement);
     }
 }
 
