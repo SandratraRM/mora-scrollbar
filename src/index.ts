@@ -1,273 +1,295 @@
-import { Manager } from './container';
+'use strict'
 import './index.scss'
-export class MoraScrollBarService{
+import { moraScrollBarConf } from "./configuration";
+import { createElement } from "./utils/element";
 
-    private wrappers: HTMLCollectionOf<Element>;
-    private initial_cursor:any = 0;
-    private current_element: any;
-    private handles: any;
-    private default_pointerup:Function | null;
-    private default_pointermove: Function | null;
-    private default_pointercancel: Function | null;
-    private initial_top: number = 0;
+class Scrollbar {
+    private targetWrapper: HTMLElement;
+    private targetContent: HTMLElement;
+    private scrollbarElement: HTMLElement;
+    private track: HTMLElement;
+    private handle: HTMLElement;
+    private buttonUp: HTMLElement;
+    private buttonDown: HTMLElement;
+    private listners: { event: string, callback: (event: Event) => void }[] = []
+    private enabled: boolean = true;
 
-    constructor(){ 
-        
-        this.current_element = null;
-        this.wrappers = document.getElementsByClassName("msc-wrapper");
-        this.handles = document.getElementsByClassName("msc-handle");
-        this.default_pointerup = window.onpointerup;
-        this.default_pointermove = window.onpointermove;
-        this.default_pointercancel = window.onpointercancel;
-        window.addEventListener("resize",(event)=>{this.refresh();});
+    constructor(wrapper: Wrapper) {
+        this.scrollbarElement = createElement(moraScrollBarConf.scrollbar);
+        // Fix selection bug 
+        this.scrollbarElement.style.userSelect = this.scrollbarElement.style.webkitUserSelect = (this.scrollbarElement.style as any).msUserSelect = "none";
+
+        this.targetWrapper = wrapper.getWrapper();
+        this.targetContent = wrapper.getContent() as HTMLElement;
+        this.handle = createElement(moraScrollBarConf.scrollbar.handle);
+        this.track = createElement(moraScrollBarConf.scrollbar.track);
+        this.track.appendChild(this.handle);
+        // Create buttons 
+        this.buttonUp = createElement(moraScrollBarConf.scrollbar.buttonUp);
+        this.buttonDown = createElement(moraScrollBarConf.scrollbar.buttonDown);
+        this.scrollbarElement.append(this.track, this.buttonUp, this.buttonDown);
+        this.targetWrapper.appendChild(this.scrollbarElement);
+        this._setEvents();
     }
 
-    // public createElement() {
-    //     const wrapper = document.createElement("DIV") ,content = document.createElement("DIV");
-    //     wrapper.classList.add("msc-wrapper");
-    //     content.classList.add("msc-content");
-    //     wrapper.appendChild(content);
-    //     return wrapper;
-    // }
+    private _setEvents() {
+        this._setRerenderEvents();
+        this._setTrackEvents();
+        this._setHandleEvents();
+        this._setButtonsEvents();
+    }
+    
+    private _setRerenderEvents() {
+        const renderCallback = () => this.renderDisplayAndPosition();
+        this.targetContent.addEventListener("scroll", renderCallback);
+        // TODO: Test support
+        const resizeObserver = new ResizeObserver(() => {
+            this.renderDisplayAndPosition();
+        });
+        resizeObserver.observe(this.targetContent);
+    }
 
-    private _render(){
-        for (var s = 0; s < this.handles.length; s++) {
-            const handle = this.handles[s];
-            const track = handle.parentElement;
-            const scrollbarElement = track.parentElement;
-            const content = scrollbarElement.previousElementSibling;
-            const wrapper = content.parentElement;
-            const arrow_down = wrapper.lastChild.lastChild;
-            const arrow_up = wrapper.lastChild.firstChild;
-            
-            let scroll_width = (content.offsetWidth - content.clientWidth);
-            if (scroll_width > 0) {
-                
-                if (content.offsetHeight == content.scrollHeight) {
-                    scrollbarElement.style.display = "none";
-                }
-                else if (content.offsetHeight < content.scrollHeight) {
-                    scrollbarElement.style.display = "block";
-                }
-                const initial_height = track.offsetHeight * this._calculateHeight({element: content}) / 100;
-                handle.style.height = initial_height + "px";
-                const top = ((content.scrollTop / (content.scrollHeight - content.offsetHeight)) * (track.clientHeight - handle.offsetHeight));
-                handle.style.top = top+ "px";
-                
-            
-                if (content.scrollTop == 0) {
-                    arrow_up.classList.add("disabled");
-                }else{
-                    arrow_up.classList.remove("disabled");
-                }
-                if (content.scrollTop == content.scrollHeight - content.offsetHeight) {
-                    arrow_down.classList.add("disabled");
-                }else{
-                    arrow_down.classList.remove("disabled");
-                }
-            
+    private _setTrackEvents() {
+        this.track.addEventListener("click", (event: Event) => {
+            this._onTrackClick(event as PointerEvent);
+        });
+    }
+
+    private _setHandleEvents() {
+        const handleOnPointerDown = (event: Event) => {
+            this._startMeasuringScroll(event);
+        };
+        this.handle?.addEventListener("pointerdown", handleOnPointerDown);
+    }
+
+    private _setButtonsEvents() {
+        const setupButton = (element: HTMLElement, increase: number) => {
+            let interval: NodeJS.Timeout;
+            element.onpointerdown = () => {
+                interval = setInterval(() => {
+                    this._buttonScroll(this.targetContent, increase);
+                }, 1);
             }
-            else{
-                scrollbarElement.style.display = "none";
+            element.onpointerup = element.onpointerout = () => {
+                clearInterval(interval);
+            }
+        }
+        setupButton(this.buttonUp, -1);
+        setupButton(this.buttonDown, 1);
+    }
+
+    private _buttonScroll(targetElement: HTMLElement, value: number) {
+        targetElement.scrollTop = targetElement.scrollTop + value;
+    }
+
+    private _submitListener(eventName: string, callback: (event: Event) => void) {
+        this.listners.push({ event: eventName, callback })
+        window.addEventListener(eventName, callback);
+    }
+
+    private _startMeasuringScroll(event: Event) {
+        this._stopMeasuringScroll();
+        this.targetWrapper.classList.add("msc-using-scroll");
+        const stopScrollCallback = (event: Event) => {
+            this._stopMeasuringScroll();
+        }
+        this._submitListener("pointercancel", stopScrollCallback);
+        this._submitListener("pointerup", stopScrollCallback);
+
+
+        const initials = {
+            top: this.handle.offsetTop,
+            cursor: (event as PointerEvent).clientY
+        }
+        const doScrollCallback = (event: Event) => {
+            this._doScrollOnPointerMove(event as PointerEvent, initials);
+        }
+        this._submitListener("pointermove", doScrollCallback);
+
+    }
+
+    private _stopMeasuringScroll() {
+        this.targetWrapper.classList.remove("msc-using-scroll");
+        while (this.listners.length > 0) {
+            const listener = this.listners.shift();
+            if (listener) {
+                window.removeEventListener(listener.event, listener.callback);
             }
         }
     }
 
-    public _calculateHeight(parameters: { element: any }) {
-        let element = parameters.element;
-        return (element.offsetHeight / element.scrollHeight) * 100;
+    private _doScrollOnPointerMove(event: PointerEvent, initials: { top: number, cursor: number }) {
+        const target = this.targetContent;
+        const handle = this.handle;
+        const track = this.track;
+        const pointer_Y = event.clientY;
+        const percent = (initials.top / (track.offsetHeight - handle.offsetHeight)) +
+            ((pointer_Y - initials.cursor) / (track.offsetHeight - handle.offsetHeight));
+
+        target.scrollTop = percent * (target.scrollHeight - (target as any as HTMLElement).offsetHeight);
     }
-    public refresh(){
-        this.remove_scrollbars();
-        if (this._hasScrollbars()) {
-            this._addScrollbar();
+
+    private _jumpPageBy(direction: number) {
+        const element = this.targetContent;
+        const initialTop = element.scrollTop;
+        const finalTop = initialTop + (element.offsetHeight * direction);
+        if (typeof Element.prototype.scrollTo === 'function') {
+            element.scrollTo({
+                top: finalTop,
+                left: 0,
+                behavior: 'smooth'
+            });
         }
     }
-    private _hasScrollbars(){
-        
+    private _onTrackClick(event: PointerEvent) {
+        if (event.target === this.track) {
+            const clientY = event.clientY;
+            if (clientY <= this.handle.getBoundingClientRect().top + this.handle.offsetHeight) {
+                this._jumpPageBy(-1)
+            } else {
+                this._jumpPageBy(1);
+            }
+        }
+    }
+    public renderDisplayAndPosition() {
+
+        // set mora scrollbar display
+        this.scrollbarElement.style.display = this.enabled && this.targetContent.offsetHeight < this.targetContent.scrollHeight ?
+            "block" : "none";
+
+        // set handle height
+        this.handle.style.height = `${this.track.offsetHeight * (this.targetContent.offsetHeight / this.targetContent.scrollHeight)}px`;
+
+        // set handle top postion
+        const invisibleContentHeight = this.targetContent.scrollHeight - this.targetContent.offsetHeight;
+        const handleTrackRoom = this.track.clientHeight - this.handle.offsetHeight;
+        this.handle.style.top = `${this.targetContent.scrollTop * handleTrackRoom / invisibleContentHeight}px`;
+
+
+        // set button classes
+        if (this.targetContent.scrollTop == 0) {
+            this.buttonUp.classList.add("disabled");
+        } else {
+            this.buttonUp.classList.remove("disabled");
+        }
+        if (this.targetContent.scrollTop == this.targetContent.scrollHeight - this.targetContent.offsetHeight) {
+            this.buttonDown.classList.add("disabled");
+        } else {
+            this.buttonDown.classList.remove("disabled");
+        }
+    }
+    public setEnabled(enabled: boolean) {
+        this.enabled = enabled;
+    }
+}
+
+class Wrapper {
+    private wrapperElement: HTMLElement;
+    private content: HTMLElement;
+    private scrollbar?: Scrollbar;
+    constructor(wrapperElement: HTMLElement) {
+        this.wrapperElement = wrapperElement;
+        this.content = this.wrapperElement.getElementsByClassName("msc-content")[0] as HTMLElement;
+        if (!this.content) {
+            const content = createElement({ tag: "div", classNames: ["msc-content"] });
+            Array.from(this.wrapperElement.children).forEach(child => {
+                content.appendChild(child);
+            });
+            this.wrapperElement.appendChild(content);
+            this.content = content;
+        }
+        this._addScrollbar();
+    }
+
+    private _addScrollbar() {
+        this.scrollbar = new Scrollbar(this);
+    }
+
+    public refresh(enabled: boolean) {
+        this._hideNativeScrollbar(enabled);
+        this.scrollbar?.setEnabled(enabled);
+        this.scrollbar?.renderDisplayAndPosition();
+    }
+
+    private _hideNativeScrollbar(enabled: boolean) {
+        let scrollbarWidth = (this.content.offsetWidth - this.content.clientWidth);
+        this.content.style.marginRight = enabled ? `-${scrollbarWidth}px` : "";
+        this.content.style.width = enabled ? `calc(100% + ${scrollbarWidth}px)` : "";
+    }
+
+    public getContent() {
+        return this.content;
+    }
+
+    public getWrapper() {
+        return this.wrapperElement;
+    }
+}
+
+export class ScrollbarManager {
+    private wrapperElements: HTMLCollectionOf<HTMLElement>
+    private wrappersMap: Map<HTMLElement, Wrapper> = new Map();
+
+    constructor(autoDiscover: boolean = false) {
+        const className = moraScrollBarConf.container.wrapper.className;
+        this.wrapperElements = document.getElementsByClassName(className) as HTMLCollectionOf<HTMLElement>;
+
+        // todo improve autoDiscover to avoid having to use onload
+        if (autoDiscover) {
+            const mutationObserver = new MutationObserver(mutations => {
+                mutations.forEach(mutation => {
+                    // Check for added nodes in the mutation
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeType === 1 && (node as HTMLElement).classList.contains(className)) {  // 1 is for element nodes
+                            this.refresh()
+                        }
+                    });
+                });
+            });
+
+            mutationObserver.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        }
+
+        window.addEventListener("resize", (event: UIEvent)=> {
+            this.refresh();
+        })
+    }
+
+    public refresh() {
+        const enabled = this._hasNativeScrollbar();
+        // todo hide and rerender when changing from touch to not touch
+
+        for (let i = 0; i < this.wrapperElements.length; i++) {
+            const wrapperElement = this.wrapperElements[i];
+            if (!this.wrappersMap.has(wrapperElement)) {
+                this.wrappersMap.set(wrapperElement, new Wrapper(wrapperElement));
+            }
+            const wrapper = this.wrappersMap.get(wrapperElement);
+            wrapper?.refresh(enabled);
+        }
+    }
+
+    private _hasNativeScrollbar() {
         const test = document.createElement("div");
-        test.style.position = "absolute";
+        test.style.position = "fixed";
         test.style.overflowY = "scroll";
-        
         test.style.height = "100%";
         test.style.width = "100%";
-        test.style.boxSizing ="border-box";
-        test.id= "msc-tester";
+        test.style.boxSizing = "border-box";
+        test.id = "msc-tester";
         document.body.appendChild(test);
         const has_scrollbar = ((test.offsetWidth - test.clientWidth) > 0);
         document.body.removeChild(test);
         return has_scrollbar;
-
     }
-    private _addScrollbar(){
-        const _Mora_ScrollBar = this;
-        for (let i =0; i < this.wrappers.length;i++){
-            const wrapper = this.wrappers[i];
-            const content = wrapper.getElementsByClassName("msc-content")[0];
-          if(content.nextElementSibling == null){
-              //@ts-ignore
-            content.addEventListener("scroll",()=>{this._render()});
-            content.addEventListener("resize",()=>{this._render()});
-            const track = document.createElement("DIV");
-            track.classList.add("msc-track");
-            const handle = document.createElement("BUTTON");
-            handle.classList.add("msc-handle");
-            handle.addEventListener("pointerdown",function (event) {
-                _Mora_ScrollBar.startScroll(event,handle);
-            });
-            track.addEventListener("click",function (event){
-                _Mora_ScrollBar.jumpTo(event,track);
-            });
-            track.appendChild(handle);
-            const scrollbar = document.createElement("DIV");
-            scrollbar.classList.add("msc-scrollbar");
-            const arrow_up = document.createElement("BUTTON");
-            const arrow_down = document.createElement("BUTTON");
-            arrow_up.classList.add("msc-btn-up");
-            arrow_down.classList.add("msc-btn-down");
-            let upInt:any;
-            arrow_up.onpointerdown = ()=>{
-                upInt = setInterval(()=>{
-                this._arrow_scroll(content,-1);
-                },1);
-            }
-            arrow_up.onpointerup = arrow_up.onpointerout = ()=>{
-                clearInterval(upInt);
-            }
-            let downInt:any;
-            
-            arrow_down.onpointerdown = ()=>{
-                downInt = setInterval(()=>{
-                this._arrow_scroll(content,1);
-                },1);
-            }
-            arrow_down.onpointerup = arrow_down.onpointerout = ()=>{
-                clearInterval(downInt);
-            }
-            
-            scrollbar.appendChild(arrow_up);
-            scrollbar.appendChild(track);
-            scrollbar.appendChild(arrow_down);
-            
-            wrapper.appendChild(scrollbar);
-          }
-        };
-        this._render();
-    }
-
-    private startScroll(event:any,element:any){
-        document.body.parentElement!.style.touchAction  = "none";
-        this.stopScroll();
-        const _MoraScrollBar = this;
-        _MoraScrollBar.initial_cursor = event.clientY;
-        _MoraScrollBar.current_element = element;
-        _MoraScrollBar.initial_top = element.offsetTop;
-        element.parentElement.parentElement.parentElement.classList.add("msc-using-scroll");
-        document.body.style.userSelect = document.body.style.webkitUserSelect = (document.body.style as any).msUserSelect = "none";
-
-        this.default_pointermove = window.onpointermove;
-        window.onpointermove = function (event: any){
-            _MoraScrollBar.pointerScroll(event);
-            if (_MoraScrollBar.default_pointermove != null) {
-               (_MoraScrollBar.default_pointermove.bind(this))(event);
-            }
-        }
-
-        this.default_pointerup = window.onpointerup;
-        window.onpointerup = function (event: any){
-            _MoraScrollBar.stopScroll();
-            if (_MoraScrollBar.default_pointerup != null) {
-                (_MoraScrollBar.default_pointerup.bind(this))(event);
-            }
-        }
-
-        this.default_pointercancel = window.onpointercancel;
-        window.onpointercancel = function (event: any){
-            _MoraScrollBar.stopScroll();
-            if (_MoraScrollBar.default_pointercancel != null) {
-                (_MoraScrollBar.default_pointercancel.bind(this))(event);
-            }
-        }
-    }
-
-    private stopScroll() {
-        const _Mora_ScrollBar = this;
-        const using = document.getElementsByClassName("msc-using-scroll")[0];
-        if (using != null) {
-            using.classList.remove("msc-using-scroll");
-        }
-        document.body.parentElement!.style.touchAction  = "";
-        document.body.style.userSelect = document.body.style.webkitUserSelect = (document.body.style as any).msUserSelect = "";
-        window.onpointermove = _Mora_ScrollBar.default_pointermove as any | null;
-        window.onpointerup = _Mora_ScrollBar.default_pointerup as any | null;
-        window.onpointercancel = _Mora_ScrollBar.default_pointercancel as any | null;
-    }
-
-    private remove_scrollbars(){
-        for (let index = 0; index < this.wrappers.length; index++) {
-            //@ts-ignore
-            const content = this.wrappers[index].getElementsByClassName("msc-content")[0];
-            //@ts-ignore
-            let scroll_width = (content.offsetWidth - content.clientWidth) + 1;
-            //@ts-ignore
-            content.style.marginRight ="-" +scroll_width+ "px";
-            //@ts-ignore
-            content.style.width = "calc(100% + "+ scroll_width + "px)";
-            
-        }
-
-    }
-    private pointerScroll(event:any){
-        const _Mora_ScrollBar = this;
-        const pointer_Y = event.clientY;
-        const element = this.current_element;
-        const percent = (this.initial_top / (element.parentElement.offsetHeight - element.offsetHeight) ) + ((pointer_Y - _Mora_ScrollBar.initial_cursor) /( element.parentElement.offsetHeight - element.offsetHeight));
-        const target = element.parentElement.parentElement.previousElementSibling;
-        target.scrollTop = percent * (target.scrollHeight - target.offsetHeight);
-    }
-    private jumpTo(event:any, element:any){
-        if (event.target == element) {
-            
-            const Y = event.clientY;
-            const cible = element.parentElement.parentElement.getElementsByClassName("msc-content")[0];
-            const handle = element.lastChild;
-            if (Y <= handle.getBoundingClientRect().top + handle.offsetHeight) {
-                this.nextPage(cible,-1)
-
-            }else{
-                this.nextPage(cible,1);
-            }
-        }
-    }
-    
-    // handle scrollTo
-    private nextPage(element:any,direction:any){
-        const initial_top = element.scrollTop;
-        const final_top = initial_top + (element.offsetHeight * direction);
-        const interval = setInterval(()=>{
-            element.scrollTop += (element.offsetHeight * direction)/10;
-            if (direction > 0 && element.scrollTop >= final_top || direction < 0 && element.scrollTop <= final_top || element.scrollTop == 0 || element.scrollTop == element.scrollHeight - element.offsetHeight) {
-                clearInterval(interval);
-                element.scrollTop = final_top;
-            }
-        },30);
-
-    }
-    
-    private _arrow_scroll(cible:any,value:Number){
-        cible.scrollTop = cible.scrollTop + value;
-    }
-}
-
-export const init = () => {
-    const  moraScrollbarService  = new MoraScrollBarService();
-    moraScrollbarService.refresh();
-    return moraScrollbarService;
 }
 
 export const startManager = () => {
     // todo externalize
-    const manager = new Manager(true);
+    const manager = new ScrollbarManager(true);
     manager.refresh();
     return manager;
 }
