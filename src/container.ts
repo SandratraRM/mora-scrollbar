@@ -180,6 +180,14 @@ class Wrapper {
     constructor(wrapperElement: HTMLElement) {
         this.wrapperElement = wrapperElement;
         this.content = this.wrapperElement.getElementsByClassName("msc-content")[0] as HTMLElement;
+        if(!this.content){
+            const content = createElement({tag: "div", classNames: ["msc-content"]});
+            Array.from(this.wrapperElement.children).forEach(child => {
+                content.appendChild(child);
+            });
+            this.wrapperElement.appendChild(content);
+            this.content = content;
+        }
         this._addScrollbar();
     }
     private _addScrollbar() {
@@ -252,9 +260,8 @@ export class Manager {
 
     private _hasNativeScrollbar() {
         const test = document.createElement("div");
-        test.style.position = "absolute";
+        test.style.position = "fixed";
         test.style.overflowY = "scroll";
-
         test.style.height = "100%";
         test.style.width = "100%";
         test.style.boxSizing = "border-box";

@@ -1,14 +1,21 @@
 .msc-wrapper {
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
-    overflow: hidden;
-    position: absolute;
-  
+
+    &:has(.msc-content){
+      overflow: hidden;
+      position: absolute;
+    }
+    
+    &.msc-full {
+      width: 100%;
+      height: 100%;
+    }
     .msc-content {
       position: absolute;
       overflow-y: scroll;
       min-width: 100%;
-      padding-right: 13px;
+      padding-right: 15px;
       -webkit-box-sizing: border-box;
       box-sizing: border-box;
       height: 100%;

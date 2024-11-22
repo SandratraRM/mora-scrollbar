@@ -1,63 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>The normal Scrollbar</title>
     <style>
-        body{
+        body {
             background: white;
             padding: 0;
             margin: 0;
         }
-        #MyScrollbar{
-            /*You must set the width and height*/
-            width: 50%;
-            height: 50%;
-            top:unset;
-        }
-        #MyScrollbar .msc-content{
+
+        #MyScrollbar .msc-content {
             padding: 20px;
         }
-        #MyScrollbar .msc-handle{
+
+        #MyScrollbar .msc-handle {
             background: rgb(26, 173, 184);
-            
+
         }
-        #MyScrollbar .msc-track{
+
+        #MyScrollbar .msc-track {
             background: rgb(222, 242, 255);
             border: 2px solid transparent;
         }
-        #MyScrollbar .msc-scrollbar{
+
+        #MyScrollbar .msc-scrollbar {
             border: 2px solid rgb(16, 136, 145);
             width: 14px;
-            border-radius:7px;
+            border-radius: 7px;
         }
-
     </style>
     <script src="../dist/index.js"></script>
 
     <script>
-      window.addEventListener("load", () => {
-          window.mscManager = MoraScrollbar.startManager()
+        window.addEventListener("load", () => {
+            window.mscManager = MoraScrollbar.startManager()
         })
     </script>
 </head>
-<body>
+
+<body id="MyScrollbar" class="msc-wrapper msc-full">
     <p>(/demos/CustomStyle.html)</p>
-    <div id="MyScrollbar" class="msc-wrapper">  
-        <div class="msc-content">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex eligendi accusamus velit fugit, voluptates nihil eius sapiente provident, consequuntur sunt magni fuga aut nesciunt molestias dolore eveniet impedit culpa nobis!
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Veritatis ipsa ex similique architecto illum dolores facere velit tempora voluptatibus, molestias natus non accusantium voluptates veniam, alias perspiciatis a ullam adipisci!
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt quisquam dolor cum, doloremque sapiente doloribus iste atque in pariatur inventore architecto mollitia natus non! Doloremque sit nemo consectetur culpa dignissimos!
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Alias asperiores tempore, dicta aut doloremque exercitationem nam ipsum quia vitae, praesentium commodi beatae voluptatem optio non repellat repudiandae nostrum deserunt harum?
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque molestias, temporibus libero nulla neque illum praesentium, doloribus similique autem voluptates explicabo officiis quas. Explicabo dolor veniam quisquam delectus blanditiis soluta!
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem autem laudantium quam, aliquid pariatur vero mollitia doloremque reprehenderit obcaecati. Laboriosam tenetur aliquid praesentium debitis quo officia natus animi error in.
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id, labore expedita dolore nobis, eius accusamus voluptate quisquam quo nemo quidem commodi ratione perferendis? Eligendi placeat, accusantium delectus dicta aliquid soluta?
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident esse necessitatibus earum fugiat reprehenderit minima eum animi excepturi, reiciendis voluptate sed dolor. Culpa officia maxime natus optio odio repellendus. Blanditiis.
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Non magnam ex, cupiditate rerum in excepturi nisi enim facilis consectetur, doloribus praesentium porro architecto possimus quos ducimus. Quasi ullam repellendus voluptatibus.
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Magnam aperiam voluptatibus, assumenda cum deserunt sed hic ullam. Libero molestiae, officiis eligendi unde debitis nam dolores. Ducimus earum minus soluta quasi?
-        </div>
+    <div>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex eligendi accusamus velit fugit, voluptates nihil
+        eius sapiente provident, consequuntur sunt magni fuga aut nesciunt molestias dolore eveniet impedit culpa nobis!
+        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Veritatis ipsa ex similique architecto illum dolores
+        facere velit tempora voluptatibus, molestias natus non accusantium voluptates veniam, alias perspiciatis a ullam
+        adipisci!
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt quisquam dolor cum, doloremque sapiente doloribus
+        iste atque in pariatur inventore architecto mollitia natus non! Doloremque sit nemo consectetur culpa
+        dignissimos!
+        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Alias asperiores tempore, dicta aut doloremque
+        exercitationem nam ipsum quia vitae, praesentium commodi beatae voluptatem optio non repellat repudiandae
+        nostrum deserunt harum?
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque molestias, temporibus libero nulla neque illum
+        praesentium, doloribus similique autem voluptates explicabo officiis quas. Explicabo dolor veniam quisquam
+        delectus blanditiis soluta!
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem autem laudantium quam, aliquid pariatur vero
+        mollitia doloremque reprehenderit obcaecati. Laboriosam tenetur aliquid praesentium debitis quo officia natus
+        animi error in.
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id, labore expedita dolore nobis, eius accusamus
+        voluptate quisquam quo nemo quidem commodi ratione perferendis? Eligendi placeat, accusantium delectus dicta
+        aliquid soluta?
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident esse necessitatibus earum fugiat
+        reprehenderit minima eum animi excepturi, reiciendis voluptate sed dolor. Culpa officia maxime natus optio odio
+        repellendus. Blanditiis.
+        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Non magnam ex, cupiditate rerum in excepturi nisi enim
+        facilis consectetur, doloribus praesentium porro architecto possimus quos ducimus. Quasi ullam repellendus
+        voluptatibus.
+        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Magnam aperiam voluptatibus, assumenda cum deserunt
+        sed hic ullam. Libero molestiae, officiis eligendi unde debitis nam dolores. Ducimus earum minus soluta quasi?
     </div>
 </body>
+
 </html>
