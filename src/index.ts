@@ -273,24 +273,20 @@ export class ScrollbarManager {
         this.wrapperElements = document.getElementsByClassName(className) as HTMLCollectionOf<HTMLElement>;
 
         // todo improve autoDiscover to avoid having to use onload
-        // TODO Handle when class change
+
         if (autoDiscover) {
             const mutationObserver = new MutationObserver(mutations => {
-                mutations.forEach(mutation => {
-                    const callback = (node: Node) => {
-                        if (node.nodeType === 1 && (node as HTMLElement).classList.contains(className)) {  // 1 is for element nodes
-                            this.refresh();
-                        }
-                    }
-                    // Todo: optimize to stop on first
-                    mutation.removedNodes.forEach(callback);
-                    mutation.addedNodes.forEach(callback);
-                });
+                
+                if(this.wrapperElements.length != this.wrappersMap.size){
+                    this.refresh()
+                }
             });
 
             mutationObserver.observe(document.body, {
                 childList: true,
-                subtree: true
+                subtree: true,
+                attributes: true, // Detect class attribute changes
+                attributeFilter: ["class"], // Limit to class attribute
             });
         }
 
