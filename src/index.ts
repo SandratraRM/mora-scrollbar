@@ -11,7 +11,8 @@ class Scrollbar {
     private handle: HTMLElement;
     private buttonUp: HTMLElement;
     private buttonDown: HTMLElement;
-    private listners: { event: string, callback: (event: Event) => void }[] = []
+    private onInitListeners: { target: Window | HTMLElement, event: string, callback: (event: Event) => void }[] = []
+    private onScrollListeners: { event: string, callback: (event: Event) => void }[] = []
     private enabled: boolean = true;
 
     constructor(wrapper: Wrapper) {
@@ -33,33 +34,23 @@ class Scrollbar {
     }
 
     private _setEvents() {
-        this._setRerenderEvents();
         this._setTrackEvents();
         this._setHandleEvents();
         this._setButtonsEvents();
     }
-    
-    private _setRerenderEvents() {
-        const renderCallback = () => this.renderDisplayAndPosition();
-        this.targetContent.addEventListener("scroll", renderCallback);
-        // TODO: Test support
-        const resizeObserver = new ResizeObserver(() => {
-            this.renderDisplayAndPosition();
-        });
-        resizeObserver.observe(this.targetContent);
-    }
+
+
 
     private _setTrackEvents() {
-        this.track.addEventListener("click", (event: Event) => {
+        this._submitOnInitListener(this.track, "click", (event: Event) => {
             this._onTrackClick(event as PointerEvent);
-        });
+        })
     }
 
     private _setHandleEvents() {
-        const handleOnPointerDown = (event: Event) => {
+        this._submitOnInitListener(this.handle, "pointerdown", (event: Event) => {
             this._startMeasuringScroll(event);
-        };
-        this.handle?.addEventListener("pointerdown", handleOnPointerDown);
+        })
     }
 
     private _setButtonsEvents() {
@@ -82,9 +73,17 @@ class Scrollbar {
         targetElement.scrollTop = targetElement.scrollTop + value;
     }
 
-    private _submitListener(eventName: string, callback: (event: Event) => void) {
-        this.listners.push({ event: eventName, callback })
+    private _submitOnScrollListener(eventName: string, callback: (event: Event) => void) {
+        this.onScrollListeners.push({ event: eventName, callback })
         window.addEventListener(eventName, callback);
+    }
+
+    private _submitOnInitListener(
+        target: Window | HTMLElement,
+        eventName: string, callback: (event: Event) => void
+    ) {
+        this.onInitListeners.push({ target, event: eventName, callback })
+        target.addEventListener(eventName, callback);
     }
 
     private _startMeasuringScroll(event: Event) {
@@ -93,8 +92,8 @@ class Scrollbar {
         const stopScrollCallback = (event: Event) => {
             this._stopMeasuringScroll();
         }
-        this._submitListener("pointercancel", stopScrollCallback);
-        this._submitListener("pointerup", stopScrollCallback);
+        this._submitOnScrollListener("pointercancel", stopScrollCallback);
+        this._submitOnScrollListener("pointerup", stopScrollCallback);
 
 
         const initials = {
@@ -104,14 +103,14 @@ class Scrollbar {
         const doScrollCallback = (event: Event) => {
             this._doScrollOnPointerMove(event as PointerEvent, initials);
         }
-        this._submitListener("pointermove", doScrollCallback);
+        this._submitOnScrollListener("pointermove", doScrollCallback);
 
     }
 
     private _stopMeasuringScroll() {
         this.targetWrapper.classList.remove("msc-using-scroll");
-        while (this.listners.length > 0) {
-            const listener = this.listners.shift();
+        while (this.onScrollListeners.length > 0) {
+            const listener = this.onScrollListeners.shift();
             if (listener) {
                 window.removeEventListener(listener.event, listener.callback);
             }
@@ -181,33 +180,59 @@ class Scrollbar {
     public setEnabled(enabled: boolean) {
         this.enabled = enabled;
     }
+    public onDestroy(){
+        this.onInitListeners.forEach(listener => {
+            listener.target.removeEventListener(listener.event, listener.callback);
+            console.log("Cleaned listener");
+        })
+    }
 }
 
 class Wrapper {
     private wrapperElement: HTMLElement;
     private content: HTMLElement;
     private scrollbar?: Scrollbar;
+    private enabled: boolean = true;
+    private contentObserver?: ResizeObserver;
+    private renderCallback = () => this.refresh();
+
     constructor(wrapperElement: HTMLElement) {
         this.wrapperElement = wrapperElement;
-        this.content = this.wrapperElement.getElementsByClassName("msc-content")[0] as HTMLElement;
+        const contentClass = moraScrollBarConf.container.content.className;
+        this.content = this.wrapperElement.getElementsByClassName(contentClass)[0] as HTMLElement;
+
+        // Create msc-content
         if (!this.content) {
-            const content = createElement({ tag: "div", classNames: ["msc-content"] });
+            const content = createElement({ tag: moraScrollBarConf.container.content.tag, classNames: [contentClass] });
             Array.from(this.wrapperElement.children).forEach(child => {
                 content.appendChild(child);
             });
             this.wrapperElement.appendChild(content);
             this.content = content;
         }
+
         this._addScrollbar();
+        this._setRefreshEvents();
     }
 
     private _addScrollbar() {
         this.scrollbar = new Scrollbar(this);
     }
 
-    public refresh(enabled: boolean) {
-        this._hideNativeScrollbar(enabled);
-        this.scrollbar?.setEnabled(enabled);
+    private _setRefreshEvents() {
+        this.content.addEventListener("scroll", this.renderCallback);
+        // TODO: Test support
+        this.contentObserver = new ResizeObserver(() => {
+            this.refresh();
+        });
+        this.contentObserver.observe(this.content);
+    }
+
+
+    
+    public refresh() {
+        this._hideNativeScrollbar(this.enabled);
+        this.scrollbar?.setEnabled(this.enabled);
         this.scrollbar?.renderDisplayAndPosition();
     }
 
@@ -216,6 +241,10 @@ class Wrapper {
         this.content.style.marginRight = enabled ? `-${scrollbarWidth}px` : "";
         this.content.style.width = enabled ? `calc(100% + ${scrollbarWidth}px)` : "";
     }
+    
+    public setEnabled(enabled: boolean) {
+        this.enabled = enabled;
+    }
 
     public getContent() {
         return this.content;
@@ -223,6 +252,15 @@ class Wrapper {
 
     public getWrapper() {
         return this.wrapperElement;
+    }
+
+    public onDestroy() {
+        // clear contentEvent
+        this.contentObserver?.disconnect();
+        this.content.removeEventListener("scroll", this.renderCallback);
+        console.log("Removed content event listener!")
+        // call scrollBarOnDestroy
+        this.scrollbar?.onDestroy();
     }
 }
 
@@ -235,15 +273,18 @@ export class ScrollbarManager {
         this.wrapperElements = document.getElementsByClassName(className) as HTMLCollectionOf<HTMLElement>;
 
         // todo improve autoDiscover to avoid having to use onload
+        // TODO Handle when class change
         if (autoDiscover) {
             const mutationObserver = new MutationObserver(mutations => {
                 mutations.forEach(mutation => {
-                    // Check for added nodes in the mutation
-                    mutation.addedNodes.forEach(node => {
+                    const callback = (node: Node) => {
                         if (node.nodeType === 1 && (node as HTMLElement).classList.contains(className)) {  // 1 is for element nodes
-                            this.refresh()
+                            this.refresh();
                         }
-                    });
+                    }
+                    // Todo: optimize to stop on first
+                    mutation.removedNodes.forEach(callback);
+                    mutation.addedNodes.forEach(callback);
                 });
             });
 
@@ -253,23 +294,32 @@ export class ScrollbarManager {
             });
         }
 
-        window.addEventListener("resize", (event: UIEvent)=> {
-            this.refresh();
-        })
+        // window.addEventListener("resize", (event: UIEvent)=> {
+        //     this.refresh();
+        // })
     }
 
     public refresh() {
         const enabled = this._hasNativeScrollbar();
-        // todo hide and rerender when changing from touch to not touch
-
+        // todo hide and rerender when changing from touch to not 
+        const actualWrappers: HTMLElement[] = [];
         for (let i = 0; i < this.wrapperElements.length; i++) {
             const wrapperElement = this.wrapperElements[i];
+            actualWrappers.push(wrapperElement);
             if (!this.wrappersMap.has(wrapperElement)) {
                 this.wrappersMap.set(wrapperElement, new Wrapper(wrapperElement));
             }
             const wrapper = this.wrappersMap.get(wrapperElement);
-            wrapper?.refresh(enabled);
+            wrapper?.setEnabled(enabled);
+            wrapper?.refresh();
         }
+        const managedWrapperElements = Array.from(this.wrappersMap.keys());
+        managedWrapperElements.filter(wrapperElement => !actualWrappers.includes(wrapperElement))
+            .forEach(orphanWrapperElement => {
+                const orphanWrapper = this.wrappersMap.get(orphanWrapperElement);
+                orphanWrapper?.onDestroy();
+                this.wrappersMap.delete(orphanWrapperElement);
+        })
     }
 
     private _hasNativeScrollbar() {

@@ -4,6 +4,7 @@ export const moraScrollBarConf = {
             className: "msc-wrapper"
         },
         content: {
+            tag: "div",
             className: "msc-content"
         },
     },
