@@ -7,6 +7,37 @@ const log = (message: string ) => {
         console.log(message)
     }
 }
+const dictionary = {
+    dimension: {
+        y: "height" as "height",
+        x: "width" as "width"
+    },
+    offsetDimension:{
+        y: "offsetHeight" as "offsetHeight",
+        x: "offsetWidth" as "offsetWidth"
+    },
+    scrollDimension:{
+        y: "scrollHeight" as "scrollHeight",
+        x: "scrollWidth" as "scrollWidth"
+    },
+
+    clientDimension:{
+        y: "clientHeight" as "clientHeight",
+        x: "clientWidth" as "clientWidth"
+    },
+    position: {
+        y: "top" as "top",
+        x: "left" as "left"
+    },
+    scrollPosition:{
+        y: "scrollTop" as "scrollTop",
+        x: "scrollLeft" as "scrollLeft"
+    },
+    axis: {
+        y: "Y",
+        x: "X"
+    }
+}
 class Scrollbar {
     private targetWrapper: HTMLElement;
     private targetContent: HTMLElement;
@@ -154,33 +185,41 @@ class Scrollbar {
             }
         }
     }
-    public renderDisplayAndPosition() {
+    public renderDisplayAndPosition(axis: "y"|"x" = "y") {
+
+        const contentOffsetDim = this.targetContent[dictionary.offsetDimension[axis]];
+        const trackOffsetDim = this.track[dictionary.offsetDimension[axis]];
+        const contentScrollDim = this.targetContent[dictionary.scrollDimension[axis]];
+        const contentScrollPos = this.targetContent[dictionary.scrollPosition[axis]];
+
 
         // set mora scrollbar display
-        this.scrollbarElement.style.display = this.enabled && this.targetContent.offsetHeight < this.targetContent.scrollHeight ?
+        this.scrollbarElement.style.display = this.enabled && contentOffsetDim < contentScrollDim ?
             "block" : "none";
 
         // set handle height
-        this.handle.style.height = `${this.track.offsetHeight * (this.targetContent.offsetHeight / this.targetContent.scrollHeight)}px`;
+        this.handle.style[dictionary.dimension[axis]] = `${trackOffsetDim * (contentOffsetDim / contentScrollDim)}px`;
 
         // set handle top postion
-        const invisibleContentHeight = this.targetContent.scrollHeight - this.targetContent.offsetHeight;
-        const handleTrackRoom = this.track.clientHeight - this.handle.offsetHeight;
-        this.handle.style.top = `${this.targetContent.scrollTop * handleTrackRoom / invisibleContentHeight}px`;
+        const invisibleContentDim = contentScrollDim - contentOffsetDim;
+        const handleTrackRoom = this.track[dictionary.clientDimension[axis]] - this.handle[dictionary.offsetDimension[axis]];
+
+        this.handle.style[dictionary.position[axis]] = `${contentScrollPos * handleTrackRoom / invisibleContentDim}px`;
 
 
         // set button classes
-        if (this.targetContent.scrollTop == 0) {
+        if (contentScrollPos == 0) {
             this.buttonUp.classList.add("disabled");
         } else {
             this.buttonUp.classList.remove("disabled");
         }
-        if (this.targetContent.scrollTop == this.targetContent.scrollHeight - this.targetContent.offsetHeight) {
+        if (contentScrollPos == contentScrollDim - contentOffsetDim) {
             this.buttonDown.classList.add("disabled");
         } else {
             this.buttonDown.classList.remove("disabled");
         }
     }
+    
     public setEnabled(enabled: boolean) {
         this.enabled = enabled;
     }
@@ -190,6 +229,10 @@ class Scrollbar {
         });
         this.targetWrapper.removeChild(this.scrollbarElement);
     }
+}
+
+class ScrollbarX extends Scrollbar {
+    
 }
 
 class Wrapper {
