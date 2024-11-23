@@ -69,7 +69,10 @@ class Scrollbar {
     
     constructor(wrapper: Wrapper, axis: "y" | "x" = "y") {
         this.axis = axis;
-        this.scrollbarElement = createElement(moraScrollBarConf.scrollbar);
+
+        const scrollbarConf = {... moraScrollBarConf.scrollbar};
+        scrollbarConf.classNames = [... scrollbarConf.classNames, ...scrollbarConf.axisClassNames[axis]];
+        this.scrollbarElement = createElement(scrollbarConf);
         // Fix selection bug 
         this.scrollbarElement.style.userSelect = this.scrollbarElement.style.webkitUserSelect = (this.scrollbarElement.style as any).msUserSelect = "none";
 
@@ -152,7 +155,7 @@ class Scrollbar {
 
         const initials = {
             position: this.handle[dictionary.offsetPostion[this.axis]],
-            cursor: (event as PointerEvent).clientY
+            cursor: (event as PointerEvent)[dictionary.clientAxis[this.axis]]
         }
         const doScrollCallback = (event: Event) => {
             this._doScrollOnPointerMove(event as PointerEvent, initials);
@@ -199,7 +202,7 @@ class Scrollbar {
     private _onTrackClick(event: PointerEvent) {
         if (event.target === this.track) {
             const clientAxisPosition = event[dictionary.clientAxis[this.axis]];
-            if (clientAxisPosition <= this.handle.getBoundingClientRect().top + this.handle[dictionary.offsetDimension[this.axis]]) {
+            if (clientAxisPosition <= this.handle.getBoundingClientRect()[dictionary.position[this.axis]] + this.handle[dictionary.offsetDimension[this.axis]]) {
                 this._jumpPageBy(-1)
             } else {
                 this._jumpPageBy(1);
@@ -301,7 +304,7 @@ class Wrapper {
         this._hideNativeScrollbar(this.enabled,"x");
         this.scrollbarY?.setEnabled(this.enabled);
         this.scrollbarY?.renderDisplayAndPosition();
-        
+
         this.scrollbarX?.setEnabled(this.enabled);
         this.scrollbarX?.renderDisplayAndPosition();
     }

@@ -12,6 +12,10 @@ export const moraScrollBarConf = {
     scrollbar: {
         tag: "div",
         classNames: ["msc-scrollbar"],
+        axisClassNames:{
+            y: ["msc-y"],
+            x: ["msc-x"]
+        },
         track: {
             tag: "div",
             classNames: ["msc-track"]
