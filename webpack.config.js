@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
   entry: './src/index.ts',
@@ -36,7 +37,11 @@ module.exports = {
       }
     ],
   },
+  
   plugins: [
+    new webpack.DefinePlugin({
+      "process.env.DEBUG": process.env.DEBUG || false
+    })
   ],
   devtool: 'source-map',
   devServer: {

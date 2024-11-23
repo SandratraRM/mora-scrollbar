@@ -1,4 +1,5 @@
 export const moraScrollBarConf = {
+    debug: process.env.DEBUG,
     container: {
         wrapper: {
             className: "msc-wrapper"

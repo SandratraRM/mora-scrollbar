@@ -2,7 +2,11 @@
 import './index.scss'
 import { moraScrollBarConf } from "./configuration";
 import { createElement } from "./utils/element";
-
+const log = (message: string ) => {
+    if(moraScrollBarConf.debug){
+        console.log(message)
+    }
+}
 class Scrollbar {
     private targetWrapper: HTMLElement;
     private targetContent: HTMLElement;
@@ -204,7 +208,7 @@ class Wrapper {
         // Create msc-content
         if (!this.content) {
             const content = createElement({ tag: moraScrollBarConf.container.content.tag, classNames: [contentClass] });
-            Array.from(this.wrapperElement.children).forEach(child => {
+            Array.from(this.wrapperElement.childNodes).forEach(child => {
                 content.appendChild(child);
             });
             this.wrapperElement.appendChild(content);
@@ -258,7 +262,7 @@ class Wrapper {
         // clear contentEvent
         this.contentObserver?.disconnect();
         this.content.removeEventListener("scroll", this.renderCallback);
-        console.log("Removed content event listener!")
+        log("Removed content event listener!")
         // call scrollBarOnDestroy
         this.scrollbar?.onDestroy();
     }
@@ -276,17 +280,26 @@ export class ScrollbarManager {
 
         if (autoDiscover) {
             const mutationObserver = new MutationObserver(mutations => {
-                
-                if(this.wrapperElements.length != this.wrappersMap.size){
-                    this.refresh()
+                const actualElements = Array.from(this.wrapperElements) as Node[];
+                const managedElements = Array.from(this.wrappersMap.keys()) as Node[];
+
+                const hadChange = mutations.some(
+                    mutation => {
+                        return actualElements.includes(mutation.target) !==
+                        managedElements.includes(mutation.target)
+                    }
+                )
+                if(hadChange){
+                    log("Refresh on autoDiscover");
+                    this.refresh();
                 }
             });
 
             mutationObserver.observe(document.body, {
                 childList: true,
                 subtree: true,
-                attributes: true, // Detect class attribute changes
-                attributeFilter: ["class"], // Limit to class attribute
+                attributes: true,
+                attributeFilter: ["class"] 
             });
         }
 
@@ -337,5 +350,6 @@ export const startManager = () => {
     // todo externalize
     const manager = new ScrollbarManager(true);
     manager.refresh();
+    log("Started Mora Scrollbar");
     return manager;
 }
