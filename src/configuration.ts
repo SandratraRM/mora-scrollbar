@@ -28,5 +28,13 @@ export const moraScrollBarConf = {
             tag: "button",
             classNames: ["msc-btn-down"]
         },
+        buttonLeft: {
+            tag: "button",
+            classNames: ["msc-btn-left"]
+        },
+        buttonRight: {
+            tag: "button",
+            classNames: ["msc-btn-right"]
+        },
     }
 }
