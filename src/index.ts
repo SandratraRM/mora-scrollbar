@@ -2,6 +2,7 @@
 import './index.scss'
 import { moraScrollBarConf } from "./configuration";
 import { createElement } from "./utils/element";
+type Axis = "x" | "y"
 const log = (message: string ) => {
     if(moraScrollBarConf.debug){
         console.log(message)
@@ -54,6 +55,11 @@ const dictionary = {
         x: "marginRight" as "marginRight"
     }
 }
+
+const getScrollbarDimension = (element: HTMLElement, axis: Axis) => {
+   return (element[dictionary.offsetDimension[axis]] - element[dictionary.clientDimension[axis]])
+}
+
 class Scrollbar {
     private targetWrapper: HTMLElement;
     private targetContent: HTMLElement;
@@ -65,9 +71,9 @@ class Scrollbar {
     private onInitListeners: { target: Window | HTMLElement, event: string, callback: (event: Event) => void }[] = []
     private onScrollListeners: { event: string, callback: (event: Event) => void }[] = []
     private enabled: boolean = true;
-    private axis: "y"| "x";
+    private axis: Axis;
     
-    constructor(wrapper: Wrapper, axis: "y" | "x" = "y") {
+    constructor(wrapper: Wrapper, axis: Axis = "y") {
         this.axis = axis;
 
         const scrollbarConf = {... moraScrollBarConf.scrollbar};
@@ -225,7 +231,9 @@ class Scrollbar {
         this.handle.style[dictionary.dimension[axis]] = `${trackOffsetDim * (contentOffsetDim / contentScrollDim)}px`;
 
         // set handle top postion
-        const invisibleContentDim = contentScrollDim - contentOffsetDim;
+        const scrollbarDim = getScrollbarDimension(this.targetContent, axis);
+        const invisibleContentDim = (contentScrollDim - contentOffsetDim) + scrollbarDim;
+        
         const handleTrackRoom = this.track[dictionary.clientDimension[axis]] - this.handle[dictionary.offsetDimension[axis]];
 
         this.handle.style[dictionary.position[axis]] = `${contentScrollPos * handleTrackRoom / invisibleContentDim}px`;
@@ -309,9 +317,9 @@ class Wrapper {
         this.scrollbarX?.renderDisplayAndPosition();
     }
 
-    private _hideNativeScrollbar(enabled: boolean, axis: "y" | "x" = "y") {
+    private _hideNativeScrollbar(enabled: boolean, axis: Axis = "y") {
         const Laxis = axis === "y" ? "x" : "y";
-        let scrollbarDim = (this.content[dictionary.offsetDimension[Laxis]] - this.content[dictionary.clientDimension[Laxis]]);
+        let scrollbarDim = getScrollbarDimension(this.content, Laxis);
         this.content.style[dictionary.posMargin[Laxis]] = enabled ? `-${scrollbarDim}px` : "";
         this.content.style[dictionary.dimension[Laxis]] = enabled ? `calc(100% + ${scrollbarDim}px)` : "";
     }

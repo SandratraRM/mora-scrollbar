@@ -13,7 +13,7 @@
     }
     .msc-content {
       position: absolute;
-      overflow-y: scroll;
+      overflow: scroll;
       min-width: 100%;
       padding-right: 20px;
       -webkit-box-sizing: border-box;
@@ -22,16 +22,46 @@
     }
   
     .msc-scrollbar {
+      &.msc-y {
+        top: 5px;
+        right: 3px;
+        width: 10px;
+        height: calc(100% - 10px);
+        .msc-handle{
+          min-height: 20px;
+          width: 100%;
+        }
+        [class*="msc-btn-"] {
+          width: 100%;
+          height: 10px;
+          right: 0;
+
+        }
+      }
+
+      &.msc-x {
+        height: 10px;
+        left: 5px;
+        bottom: 3px;
+        width: calc(100% - 10px);
+        .msc-handle{
+          min-width: 20px;
+          height: 100%;
+        }
+        [class*="msc-btn-"] {
+          height: 100%;
+          width: 10px;
+          bottom: 0;
+          
+        }
+      }
+
       position: absolute;
-      right: 3px;
       -webkit-box-sizing: border-box;
       box-sizing: border-box;
-      width: 10px;
       -ms-touch-action: none;
       touch-action: none;
-      top: 5px;
       cursor: pointer;
-      height: calc(100% - 10px);
   
       .msc-track {
         position: absolute;
@@ -52,10 +82,8 @@
           position: absolute;
           border: none;
           padding: 0;
-          min-height: 20px;
           cursor: pointer;
           outline: none;
-          width: 100%;
           border-radius: inherit;
           -webkit-border-radius: inherit;
           -moz-border-radius: inherit;
@@ -68,11 +96,8 @@
       [class*="msc-btn-"] {
         display: none;
         position: absolute;
-        right: 0;
         outline: none;
-        width: 100%;
         cursor: pointer;
-        height: 10px;
         padding: 0;
         border: none;
         background: none;

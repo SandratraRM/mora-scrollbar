@@ -86,7 +86,7 @@ h1 {
 #sidebar .msc-wrapper .msc-content a:last-of-type {
   margin-bottom: 0px;
 }
-#sidebar .msc-wrapper .msc-scrollbar {
+#sidebar .msc-wrapper .msc-scrollbar.msc-y {
   border: 2px solid white;
   width: 14px;
   right: 0;
@@ -96,6 +96,17 @@ h1 {
   -ms-border-radius: 7px;
   -o-border-radius: 7px;
 }
+#sidebar .msc-wrapper .msc-scrollbar.msc-x {
+  border: 2px solid white;
+  height: 14px;
+  bottom: 0;
+  border-radius: 7px;
+  -webkit-border-radius: 7px;
+  -moz-border-radius: 7px;
+  -ms-border-radius: 7px;
+  -o-border-radius: 7px;
+}
+
 #sidebar .msc-wrapper .msc-scrollbar .msc-track {
   background: none;
   border: 2px solid transparent;
