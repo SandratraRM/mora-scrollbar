@@ -220,7 +220,6 @@ class Scrollbar {
     public renderDisplayAndPosition() {
         const axis = this.axis;
         const contentOffsetDim = this.target.visibleContent[dictionary.offsetDimension[axis]];
-        const trackOffsetDim = this.track[dictionary.offsetDimension[axis]];
         const contentScrollDim = this.target.visibleContent[dictionary.scrollDimension[axis]];
         const contentScrollPos = this.target.visibleContent[dictionary.scrollPosition[axis]];
 
@@ -228,8 +227,10 @@ class Scrollbar {
         // set mora scrollbar display
         this.scrollbarElement.style.display = this.enabled && contentOffsetDim < contentScrollDim ?
             "block" : "none";
-
+        
+        
         // set handle height
+        const trackOffsetDim = this.track[dictionary.offsetDimension[axis]];
         this.handle.style[dictionary.dimension[axis]] = `${trackOffsetDim * (contentOffsetDim / contentScrollDim)}px`;
 
         // set handle top postion
