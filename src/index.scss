@@ -2,7 +2,7 @@
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
 
-    &:has(.msc-content){
+    &:has(.msc-visible-content){
       overflow: hidden;
       position: absolute;
     }
@@ -11,7 +11,7 @@
       width: 100%;
       height: 100%;
     }
-    .msc-content {
+    .msc-visible-content {
       position: absolute;
       overflow: scroll;
       min-width: 100%;
@@ -20,13 +20,18 @@
       box-sizing: border-box;
       height: 100%;
     }
+
+    .msc-whole-content {
+      min-width: fit-content;
+      min-height: fit-content;
+    }
   
     .msc-scrollbar {
       &.msc-y {
-        top: 5px;
+        top: 12px;
         right: 3px;
         width: 10px;
-        height: calc(100% - 10px);
+        height: calc(100% - 24px);
         .msc-handle{
           min-height: 20px;
           width: 100%;
@@ -40,10 +45,10 @@
       }
 
       &.msc-x {
+        left: 12px;
         height: 10px;
-        left: 5px;
         bottom: 3px;
-        width: calc(100% - 10px);
+        width: calc(100% - 24px);
         .msc-handle{
           min-width: 20px;
           height: 100%;

@@ -3,8 +3,8 @@ import './index.scss'
 import { moraScrollBarConf } from "./configuration";
 import { createElement } from "./utils/element";
 type Axis = "x" | "y"
-const log = (message: string ) => {
-    if(moraScrollBarConf.debug){
+const log = (message: string) => {
+    if (moraScrollBarConf.debug) {
         console.log(message)
     }
 }
@@ -13,16 +13,16 @@ const dictionary = {
         y: "height" as "height",
         x: "width" as "width"
     },
-    offsetDimension:{
+    offsetDimension: {
         y: "offsetHeight" as "offsetHeight",
         x: "offsetWidth" as "offsetWidth"
     },
-    scrollDimension:{
+    scrollDimension: {
         y: "scrollHeight" as "scrollHeight",
         x: "scrollWidth" as "scrollWidth"
     },
 
-    clientDimension:{
+    clientDimension: {
         y: "clientHeight" as "clientHeight",
         x: "clientWidth" as "clientWidth"
     },
@@ -30,39 +30,43 @@ const dictionary = {
         y: "top" as "top",
         x: "left" as "left"
     },
-    offsetPostion:{
+    offsetPostion: {
         y: "offsetTop" as "offsetTop",
         x: "offsetLeft" as "offsetLeft"
     },
-    scrollPosition:{
+    scrollPosition: {
         y: "scrollTop" as "scrollTop",
         x: "scrollLeft" as "scrollLeft"
     },
-    clientAxis:{
+    clientAxis: {
         y: "clientY" as "clientY",
         x: "clientX" as "clientX"
     },
     negButton: {
-        y:"buttonUp" as "buttonUp",
+        y: "buttonUp" as "buttonUp",
         x: "buttonLeft" as "buttonLeft"
     },
     posButton: {
-        y:"buttonDown" as "buttonDown",
+        y: "buttonDown" as "buttonDown",
         x: "buttonRight" as "buttonRight"
     },
-    posMargin:{
+    posMargin: {
         y: "marginBottom" as "marginBottom",
         x: "marginRight" as "marginRight"
     }
 }
 
 const getScrollbarDimension = (element: HTMLElement, axis: Axis) => {
-   return (element[dictionary.offsetDimension[axis]] - element[dictionary.clientDimension[axis]])
+    return (element[dictionary.offsetDimension[axis]] - element[dictionary.clientDimension[axis]])
+}
+interface ControlledElements {
+    wrapper: HTMLElement,
+    visibleContent: HTMLElement,
+    wholeContent: HTMLElement
 }
 
 class Scrollbar {
-    private targetWrapper: HTMLElement;
-    private targetContent: HTMLElement;
+    private target: ControlledElements;
     private scrollbarElement: HTMLElement;
     private track: HTMLElement;
     private handle: HTMLElement;
@@ -72,18 +76,16 @@ class Scrollbar {
     private onScrollListeners: { event: string, callback: (event: Event) => void }[] = []
     private enabled: boolean = true;
     private axis: Axis;
-    
-    constructor(wrapper: Wrapper, axis: Axis = "y") {
-        this.axis = axis;
 
-        const scrollbarConf = {... moraScrollBarConf.scrollbar};
-        scrollbarConf.classNames = [... scrollbarConf.classNames, ...scrollbarConf.axisClassNames[axis]];
+    constructor(target: ControlledElements, axis: Axis = "y") {
+        this.axis = axis;
+        this.target = target;
+        const scrollbarConf = { ...moraScrollBarConf.scrollbar };
+        scrollbarConf.classNames = [...scrollbarConf.classNames, ...scrollbarConf.axisClassNames[axis]];
         this.scrollbarElement = createElement(scrollbarConf);
         // Fix selection bug 
         this.scrollbarElement.style.userSelect = this.scrollbarElement.style.webkitUserSelect = (this.scrollbarElement.style as any).msUserSelect = "none";
 
-        this.targetWrapper = wrapper.getWrapper();
-        this.targetContent = wrapper.getContent() as HTMLElement;
         this.handle = createElement(moraScrollBarConf.scrollbar.handle);
         this.track = createElement(moraScrollBarConf.scrollbar.track);
         this.track.appendChild(this.handle);
@@ -91,7 +93,7 @@ class Scrollbar {
         this.buttonNeg = createElement(moraScrollBarConf.scrollbar[dictionary.negButton[this.axis]]);
         this.buttonPos = createElement(moraScrollBarConf.scrollbar[dictionary.posButton[this.axis]]);
         this.scrollbarElement.append(this.track, this.buttonNeg, this.buttonPos);
-        this.targetWrapper.appendChild(this.scrollbarElement);
+        this.target.wrapper.appendChild(this.scrollbarElement);
         this._setEvents();
     }
 
@@ -120,7 +122,7 @@ class Scrollbar {
             let interval: NodeJS.Timeout;
             element.onpointerdown = () => {
                 interval = setInterval(() => {
-                    this._buttonScroll(this.targetContent, increase);
+                    this._buttonScroll(this.target.visibleContent, increase);
                 }, 1);
             }
             element.onpointerup = element.onpointerout = () => {
@@ -151,7 +153,7 @@ class Scrollbar {
 
     private _startMeasuringScroll(event: Event) {
         this._stopMeasuringScroll();
-        this.targetWrapper.classList.add("msc-using-scroll");
+        this.target.wrapper.classList.add("msc-using-scroll");
         const stopScrollCallback = (event: Event) => {
             this._stopMeasuringScroll();
         }
@@ -171,7 +173,7 @@ class Scrollbar {
     }
 
     private _stopMeasuringScroll() {
-        this.targetWrapper.classList.remove("msc-using-scroll");
+        this.target.wrapper.classList.remove("msc-using-scroll");
         while (this.onScrollListeners.length > 0) {
             const listener = this.onScrollListeners.shift();
             if (listener) {
@@ -184,7 +186,7 @@ class Scrollbar {
         const offsetDimensionKey = dictionary.offsetDimension[this.axis];
         const positionKey = dictionary.scrollPosition[this.axis];
         const scrollDimensionKey = dictionary.scrollDimension[this.axis];
-        const target = this.targetContent;
+        const target = this.target.visibleContent;
         const handle = this.handle;
         const track = this.track;
         const pointerAxisPosition = event[dictionary.clientAxis[this.axis]];
@@ -195,7 +197,7 @@ class Scrollbar {
     }
 
     private _jumpPageBy(direction: number) {
-        const element = this.targetContent;
+        const element = this.target.visibleContent;
         const initialPosition = element[dictionary.scrollPosition[this.axis]];
         const finalPosition = initialPosition + (element[dictionary.offsetDimension[this.axis]] * direction);
         if (typeof Element.prototype.scrollTo === 'function') {
@@ -217,10 +219,10 @@ class Scrollbar {
     }
     public renderDisplayAndPosition() {
         const axis = this.axis;
-        const contentOffsetDim = this.targetContent[dictionary.offsetDimension[axis]];
+        const contentOffsetDim = this.target.visibleContent[dictionary.offsetDimension[axis]];
         const trackOffsetDim = this.track[dictionary.offsetDimension[axis]];
-        const contentScrollDim = this.targetContent[dictionary.scrollDimension[axis]];
-        const contentScrollPos = this.targetContent[dictionary.scrollPosition[axis]];
+        const contentScrollDim = this.target.visibleContent[dictionary.scrollDimension[axis]];
+        const contentScrollPos = this.target.visibleContent[dictionary.scrollPosition[axis]];
 
 
         // set mora scrollbar display
@@ -231,9 +233,9 @@ class Scrollbar {
         this.handle.style[dictionary.dimension[axis]] = `${trackOffsetDim * (contentOffsetDim / contentScrollDim)}px`;
 
         // set handle top postion
-        const scrollbarDim = getScrollbarDimension(this.targetContent, axis);
+        const scrollbarDim = getScrollbarDimension(this.target.visibleContent, axis);
         const invisibleContentDim = (contentScrollDim - contentOffsetDim) + scrollbarDim;
-        
+
         const handleTrackRoom = this.track[dictionary.clientDimension[axis]] - this.handle[dictionary.offsetDimension[axis]];
 
         this.handle.style[dictionary.position[axis]] = `${contentScrollPos * handleTrackRoom / invisibleContentDim}px`;
@@ -251,65 +253,77 @@ class Scrollbar {
             this.buttonPos.classList.remove("disabled");
         }
     }
-    
+
     public setEnabled(enabled: boolean) {
         this.enabled = enabled;
     }
-    public onDestroy(){
+    public onDestroy() {
         this.onInitListeners.forEach(listener => {
             listener.target.removeEventListener(listener.event, listener.callback);
         });
-        this.targetWrapper.removeChild(this.scrollbarElement);
+        this.target.wrapper.removeChild(this.scrollbarElement);
     }
 }
 
 class Wrapper {
     private wrapperElement: HTMLElement;
-    private content: HTMLElement;
+    private visibleContent: HTMLElement;
+    private wholeContent: HTMLElement;
     private scrollbarY?: Scrollbar;
     private scrollbarX?: Scrollbar;
     private enabled: boolean = true;
-    private contentObserver?: ResizeObserver;
+    private contentSizeObserver?: ResizeObserver;
     private renderCallback = () => this.refresh();
 
     constructor(wrapperElement: HTMLElement) {
         this.wrapperElement = wrapperElement;
-        const contentClass = moraScrollBarConf.container.content.className;
-        this.content = this.wrapperElement.getElementsByClassName(contentClass)[0] as HTMLElement;
-
-        // Create msc-content
-        if (!this.content) {
-            const content = createElement({ tag: moraScrollBarConf.container.content.tag, classNames: [contentClass] });
-            Array.from(this.wrapperElement.childNodes).forEach(child => {
-                content.appendChild(child);
-            });
-            this.wrapperElement.appendChild(content);
-            this.content = content;
-        }
+        const visibleContentClass = moraScrollBarConf.container.visibleContent.className;
+        const wholeContentClass = moraScrollBarConf.container.wholeContent.className;
+        this.visibleContent = this._wrapParentChildrenIfDoesntExist(this.wrapperElement, visibleContentClass, moraScrollBarConf.container.visibleContent.tag)
+        this.wholeContent = this._wrapParentChildrenIfDoesntExist(this.visibleContent, wholeContentClass, moraScrollBarConf.container.wholeContent.tag)
 
         this._addScrollbar();
         this._setRefreshEvents();
     }
 
+    private _wrapParentChildrenIfDoesntExist(parent: HTMLElement, className: string, tag: string) {
+        let element = parent.getElementsByClassName(className)[0] as HTMLElement;
+        // Create msc-visible-content
+        if (!element) {
+            element = createElement({ tag, classNames: [className] });
+            Array.from(parent.childNodes).forEach(child => {
+                element.appendChild(child);
+            });
+            parent.appendChild(element);
+        }
+        return element;
+    }
+    
     private _addScrollbar() {
-        this.scrollbarY = new Scrollbar(this, "y");
-        this.scrollbarX = new Scrollbar(this, "x");
+        const controlled: ControlledElements = {
+            wrapper: this.wrapperElement,
+            visibleContent: this.visibleContent,
+            wholeContent: this.wholeContent
+        }
+        this.scrollbarY = new Scrollbar(controlled, "y");
+        this.scrollbarX = new Scrollbar(controlled, "x");
     }
 
     private _setRefreshEvents() {
-        this.content.addEventListener("scroll", this.renderCallback);
-        // TODO: Test support
-        this.contentObserver = new ResizeObserver(() => {
+        this.visibleContent.addEventListener("scroll", this.renderCallback);
+        // TODO: Test change to wholeContent Observer
+        this.contentSizeObserver = new ResizeObserver(() => {
             this.refresh();
         });
-        this.contentObserver.observe(this.content);
+        this.contentSizeObserver.observe(this.visibleContent);
+        this.contentSizeObserver.observe(this.wholeContent);
     }
 
 
-    
+
     public refresh() {
-        this._hideNativeScrollbar(this.enabled,"y");
-        this._hideNativeScrollbar(this.enabled,"x");
+        this._hideNativeScrollbar(this.enabled, "y");
+        this._hideNativeScrollbar(this.enabled, "x");
         this.scrollbarY?.setEnabled(this.enabled);
         this.scrollbarY?.renderDisplayAndPosition();
 
@@ -319,17 +333,17 @@ class Wrapper {
 
     private _hideNativeScrollbar(enabled: boolean, axis: Axis = "y") {
         const Laxis = axis === "y" ? "x" : "y";
-        let scrollbarDim = getScrollbarDimension(this.content, Laxis);
-        this.content.style[dictionary.posMargin[Laxis]] = enabled ? `-${scrollbarDim}px` : "";
-        this.content.style[dictionary.dimension[Laxis]] = enabled ? `calc(100% + ${scrollbarDim}px)` : "";
+        let scrollbarDim = getScrollbarDimension(this.visibleContent, Laxis);
+        this.visibleContent.style[dictionary.posMargin[Laxis]] = enabled ? `-${scrollbarDim}px` : "";
+        this.visibleContent.style[dictionary.dimension[Laxis]] = enabled ? `calc(100% + ${scrollbarDim}px)` : "";
     }
-    
+
     public setEnabled(enabled: boolean) {
         this.enabled = enabled;
     }
 
-    public getContent() {
-        return this.content;
+    public getVisibleContent() {
+        return this.visibleContent;
     }
 
     public getWrapper() {
@@ -338,8 +352,8 @@ class Wrapper {
 
     public onDestroy() {
         // clear contentEvent
-        this.contentObserver?.disconnect();
-        this.content.removeEventListener("scroll", this.renderCallback);
+        this.contentSizeObserver?.disconnect();
+        this.visibleContent.removeEventListener("scroll", this.renderCallback);
         log("Removed content event listener!")
         // call scrollBarOnDestroy
         this.scrollbarY?.onDestroy();
@@ -365,10 +379,10 @@ export class ScrollbarManager {
                 const hadChange = mutations.some(
                     mutation => {
                         return actualElements.includes(mutation.target) !==
-                        managedElements.includes(mutation.target)
+                            managedElements.includes(mutation.target)
                     }
                 )
-                if(hadChange){
+                if (hadChange) {
                     log("Refresh on autoDiscover");
                     this.refresh();
                 }
@@ -378,7 +392,7 @@ export class ScrollbarManager {
                 childList: true,
                 subtree: true,
                 attributes: true,
-                attributeFilter: ["class"] 
+                attributeFilter: ["class"]
             });
         }
 
@@ -407,7 +421,7 @@ export class ScrollbarManager {
                 const orphanWrapper = this.wrappersMap.get(orphanWrapperElement);
                 orphanWrapper?.onDestroy();
                 this.wrappersMap.delete(orphanWrapperElement);
-        })
+            })
     }
 
     private _hasNativeScrollbar() {

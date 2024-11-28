@@ -45,11 +45,11 @@ First of all you need to add the `./js/MoraScrollbar.js` and the `./css/MoraScro
 ### Using
 
 Now, to actually use your custom scrollbars, you need two elements. Usually two `<div>`. 
-Then give them respectively the class `msc-wrapper` and `msc-content`.
+Then give them respectively the class `msc-wrapper` and `msc-visible-content`.
 
 ```HTML
 <div class="msc-wrapper">
-    <div class="msc-content">
+    <div class="msc-visible-content">
         Your overflowing content
     </div>
 </div>
@@ -69,7 +69,7 @@ The plugin works fine until:
 
 - New elements with custom scrollbars are added dynamically with Javascript
 
-- The content of the `msc-content` has changed
+- The content of the `msc-visible-content` has changed
 
 To fix this, when you reach one of these situation, just call the `MoraScrollbar.refresh()` method.
 

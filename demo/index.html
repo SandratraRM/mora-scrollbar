@@ -30,7 +30,7 @@
         window.addEventListener("load", function () {
             loader.classList.remove("active");
             scrollSpy();
-            document.getElementById("main").getElementsByClassName("msc-content")[0].addEventListener("scroll", scrollSpy);
+            document.getElementById("main").getElementsByClassName("msc-visible-content")[0].addEventListener("scroll", scrollSpy);
             document.getElementById("menu").addEventListener("click", toggleSidebar);
             linksOnclickCallback(toggleSidebar);
         });
@@ -44,7 +44,7 @@
                 var element = a[index];
                 var id = element.href.split("#")[1];
                 var target = document.getElementById(id);
-                var container = document.getElementById("main").getElementsByClassName("msc-content")[0];
+                var container = document.getElementById("main").getElementsByClassName("msc-visible-content")[0];
                 if (target != null && container.scrollTop >= target.offsetTop && container.scrollTop < target.offsetTop + target.offsetHeight) {
                     element.scrollIntoView();
                     element.parentElement.scrollTop -= 2;
@@ -66,7 +66,7 @@
     </script>
     <div id="sidebar">
         <div class="msc-wrapper">
-            <div class="msc-content">
+            <div class="msc-visible-content">
                 <a class="side_links" href="#welcome">Welcome</a>
                 <a class="side_links" href="#intro">Introduction</a>
                 <a class="side_links" href="#start">Getting started</a>
@@ -83,7 +83,7 @@
         Menu
     </button>
     <div id="main" class="msc-wrapper">
-        <div class="msc-content">
+        <div class="msc-visible-content">
             <header id="welcome">
                 <h1 id="welcome_title">
                     Welcome
@@ -200,11 +200,11 @@
                 </p>
                 <p>
                     Give the first element the class <span class="attr">"msc-wrapper"</span>. Then inside the first
-                    element, create the second element and give it the class <span class="attr">"msc-content"</span>.
+                    element, create the second element and give it the class <span class="attr">"msc-visible-content"</span>.
                     Don't add anything else, expect comments, inside the wrapper.<br><br>
                     <span class="html">
                         &lt;div class=<span class="attr">"msc-wrapper"</span>&gt;<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class=<span class="attr">"msc-content"</span>&gt;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class=<span class="attr">"msc-visible-content"</span>&gt;<br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text">Your overflowing content!
                             Here you can put anything</span><br>
                         &nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>
@@ -266,7 +266,7 @@
                 </p>
                 <ul>
                     <li>
-                        -You edit dynamically the content of one of the <span class="attr">msc-content</span>'s
+                        -You edit dynamically the content of one of the <span class="attr">msc-visible-content</span>'s
                         elements.
                     </li>
                     <li>
@@ -329,7 +329,7 @@
                 </p>
 
                 <div class="code">
-                    <span class="html">#MyScrollbar .msc-content</span>{
+                    <span class="html">#MyScrollbar .msc-visible-content</span>{
                     <ul>
                         <li>
                             <span class="css-property">padding</span>: <span class="css-value">20px;</span>
@@ -377,11 +377,11 @@
                 <p><b>The elements:</b></p>
                 <ul>
                     <li>
-                        <span class="attr">msc-wrapper</span> : the container of the overflowing content and the scrollbar. Think of it like a screen. It has overflow set to hidden so if you want to listen for the scroll in Js, add the listener to the msc-content. Its position is by default absolute (like all of the other classes), you can change it to relative or fixed depending on your needs. Don't add padding to it. You need to style it to set the positions and dimensions.
+                        <span class="attr">msc-wrapper</span> : the container of the overflowing content and the scrollbar. Think of it like a screen. It has overflow set to hidden so if you want to listen for the scroll in Js, add the listener to the msc-visible-content. Its position is by default absolute (like all of the other classes), you can change it to relative or fixed depending on your needs. Don't add padding to it. You need to style it to set the positions and dimensions.
                     </li>
                     <br>
                     <li>
-                        <span class="attr">msc-content</span> : the overflowing content. You can add anything inside of it. It has overflow-y to auto. Don't modify the width, height, margin, position.
+                        <span class="attr">msc-visible-content</span> : the overflowing content. You can add anything inside of it. It has overflow-y to auto. Don't modify the width, height, margin, position.
                     </li>
                     <br>
                     <li>

@@ -56,7 +56,7 @@ h1 {
   height: 80%;
   top: 10%;
 }
-#sidebar .msc-wrapper .msc-content a {
+#sidebar .msc-wrapper .msc-visible-content a {
   white-space: nowrap;
   margin: 10px;
   padding: 10px;
@@ -74,16 +74,16 @@ h1 {
   -ms-border-radius: 24px;
   -o-border-radius: 24px;
 }
-#sidebar .msc-wrapper .msc-content a.active {
+#sidebar .msc-wrapper .msc-visible-content a.active {
   background: rgba(255, 255, 255, 0.4);
 }
-#sidebar .msc-wrapper .msc-content a:hover {
+#sidebar .msc-wrapper .msc-visible-content a:hover {
   background: rgba(255, 255, 255, 0.1);
 }
-#sidebar .msc-wrapper .msc-content a:first-of-type {
+#sidebar .msc-wrapper .msc-visible-content a:first-of-type {
   margin-top: 0px;
 }
-#sidebar .msc-wrapper .msc-content a:last-of-type {
+#sidebar .msc-wrapper .msc-visible-content a:last-of-type {
   margin-bottom: 0px;
 }
 #sidebar .msc-wrapper .msc-scrollbar.msc-y {
@@ -149,11 +149,11 @@ h1 {
   background: linear-gradient(#5f6e8c 0%, #06898e 42%, #3f2145 105%);
   left: 0;
 }
-#main .msc-content {
+#main .msc-visible-content {
   padding-right: 0;
   background: linear-gradient(#5f6e8c 0%, #06898e 42%, #3f2145 105%);
 }
-#main .msc-content header {
+#main .msc-visible-content header {
   min-height: 300px;
   height: 100%;
   position: relative;
@@ -163,7 +163,7 @@ h1 {
   padding: 0px 40px;
   background: linear-gradient(#5f6e8c 0%, #06898e 42%, #3f2145 105%);
 }
-#main .msc-content header h1 {
+#main .msc-visible-content header h1 {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);

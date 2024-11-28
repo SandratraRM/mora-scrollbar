@@ -4,10 +4,14 @@ export const moraScrollBarConf = {
         wrapper: {
             className: "msc-wrapper"
         },
-        content: {
+        visibleContent: {
             tag: "div",
-            className: "msc-content"
+            className: "msc-visible-content"
         },
+        wholeContent: {
+            tag: "div",
+            className: "msc-whole-content"
+        }
     },
     scrollbar: {
         tag: "div",
