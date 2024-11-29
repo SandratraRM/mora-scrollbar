@@ -107,6 +107,9 @@
           -ms-border-radius: inherit;
           -o-border-radius: inherit;
           background: #3f3f3f;
+          &:hover {
+            background: #575757;
+          }
         }
       }
   
