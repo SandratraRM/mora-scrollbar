@@ -6,6 +6,11 @@ I'm currently doing a major refactor on this project by adding CDN and NPM packa
 
 It should be done soon. The only big thing remaing is updating or rewriting the doc and demo which may be outdated or broken.
 
+## Consideration
+
+Auto discover
+Scroll into view
+
 ## Author
 
 ### RAMBELOSON Mendrika Sandratra

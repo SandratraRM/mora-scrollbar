@@ -46,8 +46,10 @@
                 var target = document.getElementById(id);
                 var container = document.getElementById("main").getElementsByClassName("msc-visible-content")[0];
                 if (target != null && container.scrollTop >= target.offsetTop && container.scrollTop < target.offsetTop + target.offsetHeight) {
-                    element.scrollIntoView();
-                    element.parentElement.scrollTop -= 2;
+                    element.scrollIntoView(
+                        // {behavior: "smooth", block: "end", inline: "nearest"}
+                    );
+                    // element.parentElement.scrollTop -= 2;
                     element.classList.add("active");
 
                 } else {

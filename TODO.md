@@ -1,2 +1,3 @@
 
-[ ] Fix demo showing scrollbar
+- [x] Fix demo showing scrollbar
+- [ ] X with arrow

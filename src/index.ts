@@ -274,6 +274,7 @@ class Wrapper {
     private scrollbarX?: Scrollbar;
     private enabled: boolean = true;
     private contentSizeObserver?: ResizeObserver;
+    private wrapperScrollCallback = () => this._preventWrapperScroll();
     private renderCallback = () => this.refresh();
 
     constructor(wrapperElement: HTMLElement) {
@@ -311,6 +312,7 @@ class Wrapper {
     }
 
     private _setRefreshEvents() {
+        this.wrapperElement.addEventListener("scroll", this.wrapperScrollCallback)
         this.visibleContent.addEventListener("scroll", this.renderCallback);
         // TODO: Test change to wholeContent Observer
         this.contentSizeObserver = new ResizeObserver(() => {
@@ -330,6 +332,13 @@ class Wrapper {
 
         this.scrollbarX?.setEnabled(this.enabled);
         this.scrollbarX?.renderDisplayAndPosition();
+  
+    }
+
+    private _preventWrapperScroll(){
+      // prevent the wrapper element to display the scrollbar when scrolling child element into view
+      this.wrapperElement[dictionary.scrollPosition["y"]] = 0;
+      this.wrapperElement[dictionary.scrollPosition["x"]] = 0;
     }
 
     private _hideNativeScrollbar(enabled: boolean, axis: Axis = "y") {
@@ -354,6 +363,7 @@ class Wrapper {
     public onDestroy() {
         // clear contentEvent
         this.contentSizeObserver?.disconnect();
+        this.wrapperElement.removeEventListener("scroll", this.wrapperScrollCallback)
         this.visibleContent.removeEventListener("scroll", this.renderCallback);
         log("Removed content event listener!")
         // call scrollBarOnDestroy
