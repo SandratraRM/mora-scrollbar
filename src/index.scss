@@ -1,4 +1,5 @@
 .msc-wrapper {
+  
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
 
@@ -25,13 +26,24 @@
       min-width: fit-content;
       min-height: fit-content;
     }
-  
+    &.msc-has-y {
+      .msc-scrollbar.msc-x {
+        // left: 12px;
+        width: calc(100% - 20px);
+      }
+    }
+    &.msc-has-x {
+      .msc-scrollbar.msc-y {
+        // top: 12px;
+        height: calc(100% - 20px);
+      }
+    }
     .msc-scrollbar {
       &.msc-y {
-        top: 12px;
+        top: 5px;
         right: 3px;
         width: 10px;
-        height: calc(100% - 24px);
+        height: calc(100% - 10px);
         .msc-handle{
           min-height: 20px;
           width: 100%;
@@ -45,10 +57,10 @@
       }
 
       &.msc-x {
-        left: 12px;
+        left: 5px;
         height: 10px;
         bottom: 3px;
-        width: calc(100% - 24px);
+        width: calc(100% - 10px);
         .msc-handle{
           min-width: 20px;
           height: 100%;

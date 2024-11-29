@@ -59,6 +59,9 @@ const dictionary = {
 const getScrollbarDimension = (element: HTMLElement, axis: Axis) => {
     return (element[dictionary.offsetDimension[axis]] - element[dictionary.clientDimension[axis]])
 }
+const getPerpendicularAxis = (axis: Axis) => {
+    return axis === "y" ? "x" : "y";
+}
 interface ControlledElements {
     wrapper: HTMLElement,
     visibleContent: HTMLElement,
@@ -197,9 +200,10 @@ class Scrollbar {
     }
 
     private _jumpPageBy(direction: number) {
+        const scrollbarDim = getScrollbarDimension(this.target.visibleContent, getPerpendicularAxis(this.axis));
         const element = this.target.visibleContent;
         const initialPosition = element[dictionary.scrollPosition[this.axis]];
-        const finalPosition = initialPosition + (element[dictionary.offsetDimension[this.axis]] * direction);
+        const finalPosition = (initialPosition + ((element[dictionary.offsetDimension[this.axis]]  - scrollbarDim) * direction));
         if (typeof Element.prototype.scrollTo === 'function') {
             element.scrollTo({
                 [dictionary.position[this.axis]]: finalPosition,
@@ -224,17 +228,22 @@ class Scrollbar {
         const contentScrollPos = this.target.visibleContent[dictionary.scrollPosition[axis]];
 
 
+        const needScrollbar = this.enabled && contentOffsetDim < contentScrollDim;
         // set mora scrollbar display
-        this.scrollbarElement.style.display = this.enabled && contentOffsetDim < contentScrollDim ?
+        this.scrollbarElement.style.display = needScrollbar ?
             "block" : "none";
-        
+        if(needScrollbar){
+            this.target.wrapper.classList.add(`msc-has-${axis}`)
+        }else{
+            this.target.wrapper.classList.remove(`msc-has-${axis}`)
+        }
         
         // set handle height
         const trackOffsetDim = this.track[dictionary.offsetDimension[axis]];
         this.handle.style[dictionary.dimension[axis]] = `${trackOffsetDim * (contentOffsetDim / contentScrollDim)}px`;
 
         // set handle top postion
-        const scrollbarDim = getScrollbarDimension(this.target.visibleContent, axis);
+        const scrollbarDim = getScrollbarDimension(this.target.visibleContent, getPerpendicularAxis(axis));
         const invisibleContentDim = (contentScrollDim - contentOffsetDim) + scrollbarDim;
 
         const handleTrackRoom = this.track[dictionary.clientDimension[axis]] - this.handle[dictionary.offsetDimension[axis]];
@@ -342,7 +351,7 @@ class Wrapper {
     }
 
     private _hideNativeScrollbar(enabled: boolean, axis: Axis = "y") {
-        const Laxis = axis === "y" ? "x" : "y";
+        const Laxis = getPerpendicularAxis(axis);
         let scrollbarDim = getScrollbarDimension(this.visibleContent, Laxis);
         this.visibleContent.style[dictionary.posMargin[Laxis]] = enabled ? `-${scrollbarDim}px` : "";
         this.visibleContent.style[dictionary.dimension[Laxis]] = enabled ? `calc(100% + ${scrollbarDim}px)` : "";
