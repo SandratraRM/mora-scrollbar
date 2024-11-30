@@ -3,7 +3,7 @@ import './index.scss'
 import { moraScrollBarConf } from "./configuration";
 import { createElement } from "./utils/element";
 type Axis = "x" | "y"
-const log = (message: string) => {
+const debug = (message: string) => {
     if (moraScrollBarConf.debug) {
         console.log(message)
     }
@@ -230,35 +230,35 @@ class Scrollbar {
             }
         }
     }
-    
-    public reattachElements(){
-        if(this.scrollbarElement.parentElement !== this.target.wrapper){
+
+    public reattachComponents() {
+        if (this.scrollbarElement.parentElement !== this.target.wrapper) {
             this.target.wrapper.appendChild(this.scrollbarElement)
-            log(`${this.axis}:Reattached scrollbarElement to wrapper`);
-        }
-     
-        if(this.buttonNeg.parentElement !== this.scrollbarElement){
-            this.scrollbarElement.appendChild(this.buttonNeg)
-            log(`${this.axis}:Reattached buttonNeg to scrollbar`);
-        }
-        
-        if(this.track.parentElement !== this.scrollbarElement){
-            this.scrollbarElement.appendChild(this.track)
-            log(`${this.axis}:Reattached track to scrollbar`);
-        }
-        
-        if(this.handle.parentElement !== this.track){
-            this.track.appendChild(this.handle)
-            log(`${this.axis}:Reattached handle to track`);
+            debug(`${this.axis}:Reattached scrollbarElement to wrapper`);
         }
 
-        if(this.buttonPos.parentElement !== this.scrollbarElement){
+        if (this.buttonNeg.parentElement !== this.scrollbarElement) {
+            this.scrollbarElement.appendChild(this.buttonNeg)
+            debug(`${this.axis}:Reattached buttonNeg to scrollbar`);
+        }
+
+        if (this.track.parentElement !== this.scrollbarElement) {
+            this.scrollbarElement.appendChild(this.track)
+            debug(`${this.axis}:Reattached track to scrollbar`);
+        }
+
+        if (this.handle.parentElement !== this.track) {
+            this.track.appendChild(this.handle)
+            debug(`${this.axis}:Reattached handle to track`);
+        }
+
+        if (this.buttonPos.parentElement !== this.scrollbarElement) {
             this.scrollbarElement.appendChild(this.buttonPos)
-            log(`${this.axis}:Reattached buttonPos to scrollbar`);
+            debug(`${this.axis}:Reattached buttonPos to scrollbar`);
         }
     }
 
-    public renderDisplayAndPosition() {
+    public updateDisplay() {
         const axis = this.axis;
         const contentOffsetDim = this.target.visibleContent[dictionary.offsetDimension[axis]];
         const contentScrollDim = this.target.visibleContent[dictionary.scrollDimension[axis]];
@@ -324,7 +324,7 @@ class Wrapper {
     private enabled: boolean = true;
     private contentSizeObserver?: ResizeObserver;
     private wrapperScrollCallback = () => this._preventWrapperScroll();
-    private onScrollCallback = () => this._onScroll();  
+    private onScrollCallback = () => this._onScroll();
 
     private currentScrollTop = 0;
     private currentScrollLeft = 0;
@@ -367,44 +367,44 @@ class Wrapper {
         this.visibleContent.addEventListener("scroll", this.onScrollCallback);
         // TODO: Test change to wholeContent Observer
         this.contentSizeObserver = new ResizeObserver(() => {
-            this.refresh();
+            this.updateDisplay();
         });
         this.contentSizeObserver.observe(this.visibleContent);
         this.contentSizeObserver.observe(this.wholeContent);
     }
-    
-    private _onScroll(){
+
+    private _onScroll() {
         this.currentScrollTop = this.visibleContent.scrollTop;
         this.currentScrollLeft = this.visibleContent.scrollLeft;
 
-        this.refresh();
+        this.updateDisplay();
     }
-    
-    public reattachElements(){
-        if(this.visibleContent.parentElement !== this.wrapperElement){
+
+    public reattachComponents() {
+        debug("Called reattachComponents");
+        if (this.visibleContent.parentElement !== this.wrapperElement) {
             wrapParentChildren(this.wrapperElement, this.visibleContent);
-            log("Reattached visibleContent to wrapper");
+            debug("Reattached visibleContent to wrapper");
+            this.visibleContent.scrollTop = this.currentScrollTop;
+            this.visibleContent.scrollLeft = this.currentScrollLeft;
         }
-        
-        if(this.wholeContent.parentElement !== this.visibleContent){
-            wrapParentChildren(this.visibleContent, this.wholeContent);
-            log("Reattached wholeContent to visibleContent");
-        }
-        
-        this.visibleContent.scrollTop = this.currentScrollTop;
-        this.visibleContent.scrollLeft = this.currentScrollLeft;
 
-        this.scrollbarX?.reattachElements();
-        this.scrollbarY?.reattachElements();
+        if (this.wholeContent.parentElement !== this.visibleContent) {
+            wrapParentChildren(this.visibleContent, this.wholeContent);
+            debug("Reattached wholeContent to visibleContent");
+        }
+
+        this.scrollbarX?.reattachComponents();
+        this.scrollbarY?.reattachComponents();
     }
 
-    public refresh() {
+    public updateDisplay() {
         this._hideNativeScrollbar(this.enabled, "y");
         this._hideNativeScrollbar(this.enabled, "x");
         this.scrollbarY?.setEnabled(this.enabled);
-        this.scrollbarY?.renderDisplayAndPosition();
+        this.scrollbarY?.updateDisplay();
         this.scrollbarX?.setEnabled(this.enabled);
-        this.scrollbarX?.renderDisplayAndPosition();
+        this.scrollbarX?.updateDisplay();
     }
 
     private _preventWrapperScroll() {
@@ -437,7 +437,7 @@ class Wrapper {
         this.contentSizeObserver?.disconnect();
         this.wrapperElement.removeEventListener("scroll", this.wrapperScrollCallback)
         this.visibleContent.removeEventListener("scroll", this.onScrollCallback);
-        log("Removed content event listener!")
+        debug("Removed content event listener!")
         // call scrollBarOnDestroy
         this.scrollbarY?.onDestroy();
         this.scrollbarX?.onDestroy();
@@ -456,22 +456,28 @@ export class ScrollbarManager {
 
         if (autoDiscover) {
             const mutationObserver = new MutationObserver(mutations => {
-               
                 const actualElements = Array.from(this.wrapperElements) as Node[];
                 const managedElements = Array.from(this.wrappersMap.keys()) as Node[];
-            
-                const hadChange = mutations.some(
+                const needRefresh = mutations.some(
                     mutation => {
-                        return actualElements.includes(mutation.target) !==
-                            managedElements.includes(mutation.target)
+                        const needUpdateManaged = actualElements.includes(mutation.target) !==
+                            managedElements.includes(mutation.target);
+                        if(needUpdateManaged){
+                            debug("Need to update managed");
+                        }
+                        const needReattach = mutation.type === "childList" &&
+                            mutation.removedNodes.length > 0 &&
+                            this.wrappersMap.has(mutation.target as HTMLElement);
+                        if(needReattach){
+                            debug("Need to reattach components")
+                        }
+                        return needUpdateManaged || needReattach;
                     }
                 )
-                if (hadChange) {
-                    log("Refresh on autoDiscover");
+                if (needRefresh) {
+                    debug("Refresh on autoDiscover");
                     this.refresh();
                 }
-
-                this.reattachElements();
             });
 
             mutationObserver.observe(document.body, {
@@ -498,8 +504,9 @@ export class ScrollbarManager {
                 this.wrappersMap.set(wrapperElement, new Wrapper(wrapperElement));
             }
             const wrapper = this.wrappersMap.get(wrapperElement);
+            wrapper?.reattachComponents();
             wrapper?.setEnabled(enabled);
-            wrapper?.refresh();
+            wrapper?.updateDisplay();
         }
         const managedWrapperElements = Array.from(this.wrappersMap.keys());
         managedWrapperElements.filter(wrapperElement => !actualWrappers.includes(wrapperElement))
@@ -514,19 +521,14 @@ export class ScrollbarManager {
         this.wrappersMap.delete(orphanWrapperElement);
     }
 
-    public fullRefresh() {
+    public rebuild() {
         const managedWrapperElements = Array.from(this.wrappersMap.keys());
         managedWrapperElements.forEach(orphanWrapperElement => {
             this._handleWrapperRemoval(orphanWrapperElement);
         })
         this.refresh();
     }
-    public reattachElements(){
-        const managedWrapperElements = Array.from(this.wrappersMap);
-        managedWrapperElements.forEach(([,wrapper]) =>{
-            wrapper.reattachElements();
-        });
-    }
+
     private _hasNativeScrollbar() {
         const test = document.createElement("div");
         test.style.position = "fixed";
@@ -546,6 +548,6 @@ export const startManager = () => {
     // todo externalize
     const manager = new ScrollbarManager(true);
     manager.refresh();
-    log("Started Mora Scrollbar");
+    debug("Started Mora Scrollbar");
     return manager;
 }
