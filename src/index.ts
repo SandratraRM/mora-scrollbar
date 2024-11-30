@@ -324,7 +324,10 @@ class Wrapper {
     private enabled: boolean = true;
     private contentSizeObserver?: ResizeObserver;
     private wrapperScrollCallback = () => this._preventWrapperScroll();
-    private renderCallback = () => this.refresh();
+    private onScrollCallback = () => this._onScroll();  
+
+    private currentScrollTop = 0;
+    private currentScrollLeft = 0;
 
     constructor(wrapperElement: HTMLElement) {
         this.wrapperElement = wrapperElement;
@@ -347,18 +350,7 @@ class Wrapper {
         return element;
     }
 
-    public reattachElements(){
-        if(this.visibleContent.parentElement !== this.wrapperElement){
-            wrapParentChildren(this.wrapperElement, this.visibleContent);
-            log("Reattached visibleContent to wrapper");
-        }
-        if(this.wholeContent.parentElement !== this.visibleContent){
-            wrapParentChildren(this.visibleContent, this.wholeContent);
-            log("Reattached wholeContent to visibleContent");
-        }
-        this.scrollbarX?.reattachElements();
-        this.scrollbarY?.reattachElements();
-    }
+
 
     private _addScrollbar() {
         const controlled: ControlledElements = {
@@ -372,7 +364,7 @@ class Wrapper {
 
     private _setRefreshEvents() {
         this.wrapperElement.addEventListener("scroll", this.wrapperScrollCallback)
-        this.visibleContent.addEventListener("scroll", this.renderCallback);
+        this.visibleContent.addEventListener("scroll", this.onScrollCallback);
         // TODO: Test change to wholeContent Observer
         this.contentSizeObserver = new ResizeObserver(() => {
             this.refresh();
@@ -380,16 +372,39 @@ class Wrapper {
         this.contentSizeObserver.observe(this.visibleContent);
         this.contentSizeObserver.observe(this.wholeContent);
     }
+    
+    private _onScroll(){
+        this.currentScrollTop = this.visibleContent.scrollTop;
+        this.currentScrollLeft = this.visibleContent.scrollLeft;
+
+        this.refresh();
+    }
+    
+    public reattachElements(){
+        if(this.visibleContent.parentElement !== this.wrapperElement){
+            wrapParentChildren(this.wrapperElement, this.visibleContent);
+            log("Reattached visibleContent to wrapper");
+        }
+        
+        if(this.wholeContent.parentElement !== this.visibleContent){
+            wrapParentChildren(this.visibleContent, this.wholeContent);
+            log("Reattached wholeContent to visibleContent");
+        }
+        
+        this.visibleContent.scrollTop = this.currentScrollTop;
+        this.visibleContent.scrollLeft = this.currentScrollLeft;
+
+        this.scrollbarX?.reattachElements();
+        this.scrollbarY?.reattachElements();
+    }
 
     public refresh() {
         this._hideNativeScrollbar(this.enabled, "y");
         this._hideNativeScrollbar(this.enabled, "x");
         this.scrollbarY?.setEnabled(this.enabled);
         this.scrollbarY?.renderDisplayAndPosition();
-
         this.scrollbarX?.setEnabled(this.enabled);
         this.scrollbarX?.renderDisplayAndPosition();
-
     }
 
     private _preventWrapperScroll() {
@@ -421,7 +436,7 @@ class Wrapper {
         // clear contentEvent
         this.contentSizeObserver?.disconnect();
         this.wrapperElement.removeEventListener("scroll", this.wrapperScrollCallback)
-        this.visibleContent.removeEventListener("scroll", this.renderCallback);
+        this.visibleContent.removeEventListener("scroll", this.onScrollCallback);
         log("Removed content event listener!")
         // call scrollBarOnDestroy
         this.scrollbarY?.onDestroy();
